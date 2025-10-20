@@ -60,8 +60,11 @@ void Service::start(const std::string&){
   printf("array_size,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
   const size_t sizes[] = {2000, 50000, 100000};
+  const int repetitions = 50;
+  
   for (size_t size : sizes) {
-    auto data = generate_random_array(size);
+    for (int rep = 0; rep < repetitions; rep++) {
+      auto data = generate_random_array(size);
     auto result = energy_bench::bench_function(
       [&data]() {
         bubblesort(data);
@@ -90,6 +93,7 @@ void Service::start(const std::string&){
       total_joules,
       total_joules * 1000
     );
+    }
   }
   os::shutdown();
 }
