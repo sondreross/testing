@@ -1,18 +1,15 @@
 CC = clang++
 CXXFLAGS = -std=c++20 -O3 -DNDEBUG -g -fstack-protector-strong -fno-omit-frame-pointer -fno-threadsafe-statics -ffunction-sections -fdata-sections -Wall -Wextra -Wno-frame-address
-TARGET = hello_linux
-OBJS = main.o
+TARGET = bubblesort_bench_linux
+SOURCE = bubblesort_bench_linux.cpp
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CXXFLAGS) $(OBJS) -o $(TARGET)
-
-main.o: main.cpp
-	$(CC) $(CXXFLAGS) -c main.cpp -o main.o
+$(TARGET): $(SOURCE)
+	$(CC) $(CXXFLAGS) -o $(TARGET) $(SOURCE)
 
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET)
 
 .PHONY: all clean
 
