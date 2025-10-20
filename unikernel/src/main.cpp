@@ -56,57 +56,40 @@ void bubblesort(std::vector<int>& arr) {
 }
 
 void Service::start(const std::string&){
-  printf("=== Bubblesort Energy Benchmark ===\n");
-  printf("Platform: %s\n", os::arch());
-  printf("NOTE: RAPL energy measurement requires:\n");
-  printf("  - Intel CPU (Sandy Bridge or newer)\n");
-  printf("  - Physical hardware (not VM)\n");
-  printf("  - Proper MSR access\n\n");
-  
-  // Test with different array sizes
+  // Print CSV header (same as Linux version)
+  printf("array_size,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+
   const size_t sizes[] = {2000, 50000, 100000};
-  
   for (size_t size : sizes) {
-    printf("Testing bubblesort with array size: %zu\n", size);
-    
-    // Generate random data
     auto data = generate_random_array(size);
-    
-    // Benchmark the bubblesort - use only PKG domain which is most widely supported
     auto result = energy_bench::bench_function(
       [&data]() {
         bubblesort(data);
       },
-      energy_bench::PKG  // Measure only CPU package (most compatible)
+      energy_bench::PKG | energy_bench::DRAM // Try to measure both if available
     );
-    
-    // Print results
-    printf("  Array size: %zu elements\n", size);
-    printf("  CPU Cycles: %llu (start: %llu, end: %llu)\n",
-           (unsigned long long)result.cycles_elapsed,
-           (unsigned long long)result.cycles_start,
-           (unsigned long long)result.cycles_end);
-    printf("  Time: %.3f ns (%.6f ms)\n", 
-           result.time_ns(os::cpu_freq().count() / 1000),
-           result.time_ns(os::cpu_freq().count() / 1000) / 1'000'000.0);
-    printf("  PKG Energy:  %.6f J (%.3f mJ)\n", 
-           result.pkg_joules(), result.pkg_joules() * 1000);
-    
-    if (result.measured_domains & energy_bench::DRAM) {
-      printf("  DRAM Energy: %.6f J (%.3f mJ)\n", 
-             result.dram_joules(), result.dram_joules() * 1000);
-    }
-    printf("  Total Energy: %.6f J (%.3f mJ)\n", 
-           result.total_joules(), result.total_joules() * 1000);
-    
-    // Verify first few elements are sorted
-    printf("  First 5 sorted elements: ");
-    for (size_t i = 0; i < 5 && i < data.size(); i++) {
-      printf("%d ", data[i]);
-    }
-    printf("\n\n");
+
+    double time_ns = result.time_ns(os::cpu_freq().count() / 1000);
+    double time_ms = time_ns / 1'000'000.0;
+    double pkg_joules = result.pkg_joules();
+    double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
+    double total_joules = result.total_joules();
+
+    // Print CSV row
+    printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
+      size,
+      (unsigned long long)result.cycles_elapsed,
+      (unsigned long long)result.cycles_start,
+      (unsigned long long)result.cycles_end,
+      time_ns,
+      time_ms,
+      pkg_joules,
+      pkg_joules * 1000,
+      dram_joules,
+      dram_joules * 1000,
+      total_joules,
+      total_joules * 1000
+    );
   }
-  
-  printf("Benchmark complete. Shutting down...\n");
   os::shutdown();
 }

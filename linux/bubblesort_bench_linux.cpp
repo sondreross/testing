@@ -35,20 +35,30 @@ uint64_t read_msr(int cpu, uint32_t msr) {
     return data;
 }
 
-// Read CPU timestamp counter
-static inline uint64_t rdtsc() {
+// Read CPU timestamp counter with full serialization (start of measurement)
+static inline uint64_t rdtsc_begin() {
     uint32_t lo, hi;
-    __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+    __asm__ __volatile__ (
+        "cpuid\n\t"          // Serialize - wait for all prior instructions
+        "rdtsc\n\t"
+        : "=a"(lo), "=d"(hi)
+        : "a"(0)             // cpuid leaf 0
+        : "rbx", "rcx"       // cpuid clobbers these
+    );
     return ((uint64_t)hi << 32) | lo;
 }
 
-// Read CPU timestamp counter with serialization
-static inline uint64_t rdtsc_ordered() {
+// Read CPU timestamp counter with serialization (end of measurement)
+static inline uint64_t rdtsc_end() {
     uint32_t lo, hi;
     __asm__ __volatile__ (
-        "lfence\n\t"
-        "rdtsc\n\t"
-        : "=a"(lo), "=d"(hi)
+        "rdtscp\n\t"         // Read TSC with implicit serialization
+        "mov %%edx, %0\n\t"
+        "mov %%eax, %1\n\t"
+        "cpuid\n\t"          // Serialize - prevent later instructions from starting
+        : "=r"(hi), "=r"(lo)
+        : 
+        : "rax", "rbx", "rcx", "rdx"
     );
     return ((uint64_t)hi << 32) | lo;
 }
@@ -106,31 +116,45 @@ int main() {
         
         // Read energy and timestamp before
         uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
-        uint64_t cycles_start = rdtsc_ordered();
+        uint64_t cycles_start = rdtsc_begin();
         
         // Run bubblesort
         bubblesort(data);
         
         // Read energy and timestamp after
-        uint64_t cycles_end = rdtsc_ordered();
+        uint64_t cycles_end = rdtsc_end();
         uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
         
         // Calculate results
         uint64_t cycles_elapsed = cycles_end - cycles_start;
         
-        // Handle energy counter wraparound (32-bit counter)
-        uint32_t energy_delta;
+        // Handle energy counter wraparound (64-bit counter)
+        uint64_t energy_delta;
         if (energy_after >= energy_before) {
-            energy_delta = (energy_after - energy_before) & 0xFFFFFFFF;
+            energy_delta = energy_after - energy_before;
         } else {
-            energy_delta = (0x100000000ULL + energy_after - energy_before) & 0xFFFFFFFF;
+            // Wraparound case (though unlikely with 64-bit counter)
+            energy_delta = (UINT64_MAX - energy_before) + energy_after + 1;
         }
         
         double pkg_joules = energy_delta * energy_unit;
         
-        // Assume 3 GHz CPU for time calculation (adjust if needed)
-        // You can read actual CPU frequency from /proc/cpuinfo or similar
-        const double cpu_freq_mhz = 3000.0; // MHz
+        // Read actual CPU frequency from /proc/cpuinfo
+        double cpu_freq_mhz = 3000.0; // Default fallback
+        FILE* cpuinfo = fopen("/proc/cpuinfo", "r");
+        if (cpuinfo) {
+            char line[256];
+            while (fgets(line, sizeof(line), cpuinfo)) {
+                if (strncmp(line, "cpu MHz", 7) == 0) {
+                    double mhz = 0.0;
+                    if (sscanf(line, "cpu MHz\t: %lf", &mhz) == 1 && mhz > 0.0) {
+                        cpu_freq_mhz = mhz;
+                        break;
+                    }
+                }
+            }
+            fclose(cpuinfo);
+        }
         double time_ns = (cycles_elapsed * 1000.0) / cpu_freq_mhz;
         double time_ms = time_ns / 1000000.0;
         

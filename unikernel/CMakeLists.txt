@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
-set(ELF_SYMBOLS true)
-
 project(hello_includeos)
 
 find_package(IncludeOS)
@@ -10,7 +7,6 @@ find_package(IncludeOS)
 include(os)
 
 os_add_executable(hello_includeos "Hello world - OS included" src/main.cpp)
-os_add_drivers(hello_includeos)
 os_add_stdout(hello_includeos default_stdout)
 
 # This would be for application specific libs.
