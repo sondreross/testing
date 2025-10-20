@@ -59,7 +59,7 @@ void Service::start(const std::string&){
   // Print CSV header (same as Linux version)
   printf("array_size,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-  const size_t sizes[] = {2000, 50000, 100000};
+  const size_t sizes[] = {100000};
   const int repetitions = 30;
   
   for (size_t size : sizes) {
@@ -69,7 +69,7 @@ void Service::start(const std::string&){
       [&data]() {
         bubblesort(data);
       },
-      energy_bench::PKG | energy_bench::DRAM // Try to measure both if available
+      energy_bench::PKG
     );
 
     double time_ns = result.time_ns(os::cpu_freq().count() / 1000);

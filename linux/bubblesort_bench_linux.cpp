@@ -108,8 +108,8 @@ int main() {
     
     // Print CSV header
     printf("array_size,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
-    
-    const size_t sizes[] = {2000, 50000, 100000};
+
+    const size_t sizes[] = {100000};
     const int repetitions = 30;
     
     for (size_t size : sizes) {
