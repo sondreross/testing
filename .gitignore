@@ -1,3 +1,4 @@
+.vscode/
 virtenv/
 unikernel/build
 unikernel/hello_includeos.iso

@@ -63,38 +63,31 @@ static inline uint64_t rdtsc_end() {
     return ((uint64_t)hi << 32) | lo;
 }
 
-// Function to generate random data
-std::vector<int> generate_random_array(size_t size) {
-    std::vector<int> arr;
-    arr.reserve(size);
-    
-    // Simple pseudo-random number generation
+// Function to generate random data (malloced array)
+int* generate_random_array(size_t size) {
+    int* arr = (int*)malloc(size * sizeof(int));
+    if (!arr) return nullptr;
     unsigned int seed = 12345;
     for (size_t i = 0; i < size; i++) {
         seed = seed * 1103515245 + 12345;
-        arr.push_back(static_cast<int>(seed % 10000));
+        arr[i] = static_cast<int>(seed % 10000);
     }
-    
     return arr;
 }
 
-// Bubblesort implementation
-void bubblesort(std::vector<int>& arr) {
-    size_t n = arr.size();
+// Bubblesort implementation for plain int* array
+void bubblesort(int* arr, size_t n) {
     bool swapped;
-    
     for (size_t i = 0; i < n - 1; i++) {
         swapped = false;
         for (size_t j = 0; j < n - i - 1; j++) {
             if (arr[j] > arr[j + 1]) {
-                // Swap elements
                 int temp = arr[j];
                 arr[j] = arr[j + 1];
                 arr[j + 1] = temp;
                 swapped = true;
             }
         }
-        // If no swaps were made, array is sorted
         if (!swapped) break;
     }
 }
@@ -114,65 +107,59 @@ int main() {
     
     for (size_t size : sizes) {
         for (int rep = 0; rep < repetitions; rep++) {
-            auto data = generate_random_array(size);
-        
-        // Read energy and timestamp before
-        uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
-        uint64_t cycles_start = rdtsc_begin();
-        
-        // Run bubblesort
-        bubblesort(data);
-        
-        // Read energy and timestamp after
-        uint64_t cycles_end = rdtsc_end();
-        uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
-        
-        // Calculate results
-        uint64_t cycles_elapsed = cycles_end - cycles_start;
-        
-        // Handle energy counter wraparound (64-bit counter)
-        uint64_t energy_delta;
-        if (energy_after >= energy_before) {
-            energy_delta = energy_after - energy_before;
-        } else {
-            // Wraparound case (though unlikely with 64-bit counter)
-            energy_delta = (UINT64_MAX - energy_before) + energy_after + 1;
-        }
-        
-        double pkg_joules = energy_delta * energy_unit;
-        
-        // Read actual CPU frequency from /proc/cpuinfo
-        double cpu_freq_mhz = 3000.0; // Default fallback
-        FILE* cpuinfo = fopen("/proc/cpuinfo", "r");
-        if (cpuinfo) {
-            char line[256];
-            while (fgets(line, sizeof(line), cpuinfo)) {
-                if (strncmp(line, "cpu MHz", 7) == 0) {
-                    double mhz = 0.0;
-                    if (sscanf(line, "cpu MHz\t: %lf", &mhz) == 1 && mhz > 0.0) {
-                        cpu_freq_mhz = mhz;
-                        break;
+            int* data = generate_random_array(size);
+            if (!data) continue;
+            // Read energy and timestamp before
+            uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
+            uint64_t cycles_start = rdtsc_begin();
+            // Run bubblesort
+            bubblesort(data, size);
+            // Read energy and timestamp after
+            uint64_t cycles_end = rdtsc_end();
+            uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
+            // Calculate results
+            uint64_t cycles_elapsed = cycles_end - cycles_start;
+            // Handle energy counter wraparound (64-bit counter)
+            uint64_t energy_delta;
+            if (energy_after >= energy_before) {
+                energy_delta = energy_after - energy_before;
+            } else {
+                // Wraparound case (though unlikely with 64-bit counter)
+                energy_delta = (UINT64_MAX - energy_before) + energy_after + 1;
+            }
+            double pkg_joules = energy_delta * energy_unit;
+            // Read actual CPU frequency from /proc/cpuinfo
+            double cpu_freq_mhz = 3000.0; // Default fallback
+            FILE* cpuinfo = fopen("/proc/cpuinfo", "r");
+            if (cpuinfo) {
+                char line[256];
+                while (fgets(line, sizeof(line), cpuinfo)) {
+                    if (strncmp(line, "cpu MHz", 7) == 0) {
+                        double mhz = 0.0;
+                        if (sscanf(line, "cpu MHz\t: %lf", &mhz) == 1 && mhz > 0.0) {
+                            cpu_freq_mhz = mhz;
+                            break;
+                        }
                     }
                 }
+                fclose(cpuinfo);
             }
-            fclose(cpuinfo);
-        }
-        double time_ns = (cycles_elapsed * 1000.0) / cpu_freq_mhz;
-        double time_ms = time_ns / 1000000.0;
-        
-        // Print CSV row (PKG only, no DRAM)
-        printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,,,%.6f,%.3f\n",
-            size,
-            (unsigned long long)cycles_elapsed,
-            (unsigned long long)cycles_start,
-            (unsigned long long)cycles_end,
-            time_ns,
-            time_ms,
-            pkg_joules,
-            pkg_joules * 1000,
-            pkg_joules,  // total = pkg only
-            pkg_joules * 1000
-        );
+            double time_ns = (cycles_elapsed * 1000.0) / cpu_freq_mhz;
+            double time_ms = time_ns / 1000000.0;
+            // Print CSV row (PKG only, no DRAM)
+            printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,,,%.6f,%.3f\n",
+                size,
+                (unsigned long long)cycles_elapsed,
+                (unsigned long long)cycles_start,
+                (unsigned long long)cycles_end,
+                time_ns,
+                time_ms,
+                pkg_joules,
+                pkg_joules * 1000,
+                pkg_joules,  // total = pkg only
+                pkg_joules * 1000
+            );
+            free(data);
         }
     }
     
