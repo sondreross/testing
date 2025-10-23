@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <arch/x86/cpu.hpp>
+#include "../../bubblesort.h"
 
 // Check if RAPL is available
 bool check_rapl_support() {
@@ -28,23 +29,6 @@ int* generate_random_array(size_t size) {
     arr[i] = static_cast<int>(seed % 10000);
   }
   return arr;
-}
-
-// Bubblesort implementation for plain int* array
-void bubblesort(int* arr, size_t n) {
-  bool swapped;
-  for (size_t i = 0; i < n - 1; i++) {
-    swapped = false;
-    for (size_t j = 0; j < n - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        int temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
-        swapped = true;
-      }
-    }
-    if (!swapped) break;
-  }
 }
 
 void Service::start(const std::string&){

@@ -1,0 +1,13 @@
+# Makefile to compile bubblesort.o independently
+# This object file will be linked into both Linux and Unikernel builds
+
+CC = clang
+CFLAGS = -O3 -DNDEBUG -fPIC -c
+
+bubblesort.o: bubblesort.c bubblesort.h
+	$(CC) $(CFLAGS) -o bubblesort.o bubblesort.c
+
+clean:
+	rm -f bubblesort.o
+
+.PHONY: clean
