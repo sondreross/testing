@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
-#include"../bubblesort.h"
+#include"../support.h"
 
 // MSR addresses
 #define MSR_RAPL_POWER_UNIT    0x606
@@ -65,21 +65,6 @@ static inline uint64_t rdtsc_end() {
     return ((uint64_t)hi << 32) | lo;
 }
 
-// Function to generate random data
-std::vector<int> generate_random_array(size_t size) {
-    std::vector<int> arr;
-    arr.reserve(size);
-    
-    // Simple pseudo-random number generation
-    unsigned int seed = 12345;
-    for (size_t i = 0; i < size; i++) {
-        seed = seed * 1103515245 + 12345;
-        arr.push_back(static_cast<int>(seed % 10000));
-    }
-    
-    return arr;
-}
-
 int main() {
     const int cpu = 0; // Use CPU 0
     
@@ -88,23 +73,20 @@ int main() {
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
     // Print CSV header
-    printf("array_size,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
     const size_t sizes[] = {100000};
     const int repetitions = 30;
     
-    for (size_t size : sizes) {
-        for (int rep = 0; rep < repetitions; rep++) {
-            auto data = generate_random_array(size);
-        
-            struct timespec start, end;
+    for (int rep = 0; rep < repetitions; rep++) {
+        struct timespec start, end;
         // Read energy and timestamp before
         clock_gettime(CLOCK_MONOTONIC, &start);
         uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
         uint64_t cycles_start = rdtsc_begin();
         
-        // Run bubblesort
-        bubblesort(data);
+        // Run benchmark
+        benchmark();
         
         // Read energy and timestamp after
         uint64_t cycles_end = rdtsc_end();
@@ -147,7 +129,7 @@ int main() {
         
         // Print CSV row (PKG only, no DRAM)
         printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,,,%.6f,%.3f\n",
-            size,
+            get_benchmark_name(),
             (unsigned long long)cycles_elapsed,
             (unsigned long long)cycles_start,
             (unsigned long long)cycles_end,
@@ -158,7 +140,6 @@ int main() {
             pkg_joules,  // total = pkg only
             pkg_joules * 1000
         );
-        }
     }
     
     return 0;

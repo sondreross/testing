@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <arch/x86/cpu.hpp>
-#include "../bubblesort.h"
+#include "../support.h"
 
 // Check if RAPL is available
 bool check_rapl_support() {
@@ -20,35 +20,15 @@ bool check_rapl_support() {
   }
 }
 
-// Function to generate random data
-std::vector<int> generate_random_array(size_t size) {
-  std::vector<int> arr;
-  arr.reserve(size);
-  
-  // Simple pseudo-random number generation
-  unsigned int seed = 12345;
-  for (size_t i = 0; i < size; i++) {
-    seed = seed * 1103515245 + 12345;
-    arr.push_back(static_cast<int>(seed % 10000));
-  }
-  
-  return arr;
-}
-
 void Service::start(const std::string&){
   // Print CSV header (same as Linux version)
-  printf("array_size,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+  printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-  const size_t sizes[] = {100000};
   const int repetitions = 30;
   
   for (size_t size : sizes) {
-    for (int rep = 0; rep < repetitions; rep++) {
-      auto data = generate_random_array(size);
     auto result = energy_bench::bench_function(
-      [&data]() {
-        bubblesort(data);
-      },
+      run_benchmark,
       energy_bench::PKG
     );
 
@@ -73,7 +53,6 @@ void Service::start(const std::string&){
       total_joules,
       total_joules * 1000
     );
-    }
   }
   os::shutdown();
 }
