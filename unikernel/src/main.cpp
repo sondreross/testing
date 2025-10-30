@@ -1,10 +1,10 @@
 #include <os>
 #include <service>
 #include <energy_bench>
+#include <vector>
 #include <cstdlib>
 #include <ctime>
 #include <arch/x86/cpu.hpp>
-#include "../../bubblesort.h"
 
 // Check if RAPL is available
 bool check_rapl_support() {
@@ -19,16 +19,40 @@ bool check_rapl_support() {
   }
 }
 
-// Function to generate random data (malloced array)
-int* generate_random_array(size_t size) {
-  int* arr = (int*)malloc(size * sizeof(int));
-  if (!arr) return nullptr;
+// Function to generate random data
+std::vector<int> generate_random_array(size_t size) {
+  std::vector<int> arr;
+  arr.reserve(size);
+  
+  // Simple pseudo-random number generation
   unsigned int seed = 12345;
   for (size_t i = 0; i < size; i++) {
     seed = seed * 1103515245 + 12345;
-    arr[i] = static_cast<int>(seed % 10000);
+    arr.push_back(static_cast<int>(seed % 10000));
   }
+  
   return arr;
+}
+
+// Bubblesort implementation
+void bubblesort(std::vector<int>& arr) {
+  size_t n = arr.size();
+  bool swapped;
+  
+  for (size_t i = 0; i < n - 1; i++) {
+    swapped = false;
+    for (size_t j = 0; j < n - i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        // Swap elements
+        int temp = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = temp;
+        swapped = true;
+      }
+    }
+    // If no swaps were made, array is sorted
+    if (!swapped) break;
+  }
 }
 
 void Service::start(const std::string&){
@@ -40,37 +64,35 @@ void Service::start(const std::string&){
   
   for (size_t size : sizes) {
     for (int rep = 0; rep < repetitions; rep++) {
-      int* data = generate_random_array(size);
-      if (!data) continue;
-      auto result = energy_bench::bench_function(
-        [&data, size]() {
-          bubblesort(data, size);
-        },
-        energy_bench::PKG
-      );
+      auto data = generate_random_array(size);
+    auto result = energy_bench::bench_function(
+      [&data]() {
+        bubblesort(data);
+      },
+      energy_bench::PKG
+    );
 
-      double time_ns = result.time_ns(os::cpu_freq().count() / 1000);
-      double time_ms = time_ns / 1'000'000.0;
-      double pkg_joules = result.pkg_joules();
-      double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
-      double total_joules = result.total_joules();
+    double time_ns = result.nanos_elapsed;
+    double time_ms = time_ns / 1'000'000.0;
+    double pkg_joules = result.pkg_joules();
+    double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
+    double total_joules = result.total_joules();
 
-      // Print CSV row
-      printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
-        size,
-        (unsigned long long)result.cycles_elapsed,
-        (unsigned long long)result.cycles_start,
-        (unsigned long long)result.cycles_end,
-        time_ns,
-        time_ms,
-        pkg_joules,
-        pkg_joules * 1000,
-        dram_joules,
-        dram_joules * 1000,
-        total_joules,
-        total_joules * 1000
-      );
-      free(data);
+    // Print CSV row
+    printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
+      size,
+      (unsigned long long)result.cycles_elapsed,
+      (unsigned long long)result.cycles_start,
+      (unsigned long long)result.cycles_end,
+      time_ns,
+      time_ms,
+      pkg_joules,
+      pkg_joules * 1000,
+      dram_joules,
+      dram_joules * 1000,
+      total_joules,
+      total_joules * 1000
+    );
     }
   }
   os::shutdown();
