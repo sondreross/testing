@@ -6,7 +6,7 @@ find_package(IncludeOS)
 
 include(os)
 
-os_add_executable(hello_includeos "Hello world - OS included" src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../bubblesort.o)
+os_add_executable(hello_includeos "Hello world - OS included" src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/bubblesort/libbubblesort.o)
 os_add_stdout(hello_includeos default_stdout)
 
 # This would be for application specific libs.

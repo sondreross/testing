@@ -2,7 +2,7 @@ CC = clang++
 CXXFLAGS = -O3 -DNDEBUG -g -fstack-protector-strong -fno-omit-frame-pointer -fno-threadsafe-statics -ffunction-sections -fdata-sections -Wall -Wextra -Wno-frame-address
 TARGET = bubblesort_bench_linux
 SOURCE = bubblesort_bench_linux.cpp
-BUBBLESORT_OBJ = ../bubblesort.o
+BUBBLESORT_OBJ = ../benchmarks/bubblesort/libbubblesort.o
 
 all: $(TARGET)
 
