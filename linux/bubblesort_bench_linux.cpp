@@ -84,7 +84,7 @@ int main() {
         uint64_t cycles_start = rdtsc_begin();
         
         // Run benchmark
-        run_benchmark();
+        benchmark();
         
         // Read energy and timestamp after
         uint64_t cycles_end = rdtsc_end();

@@ -7,7 +7,7 @@ extern "C" {
 
 
 // Benchmark function declaration
-int run_benchmark(void) __attribute__((noinline));
+int benchmark(void) __attribute__((noinline));
 
 // Get benchmark name
 char* get_benchmark_name(void);
