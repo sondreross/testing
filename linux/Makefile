@@ -3,12 +3,12 @@ CXXFLAGS = -O3 -DNDEBUG -g -fstack-protector-strong -fno-omit-frame-pointer -fno
 TARGET = bubblesort_bench_linux
 SOURCE = bubblesort_bench_linux.cpp
 BUBBLESORT_OBJ = ../benchmarks/bubblesort/libbubblesort.o
-BUBBLESORT_HEADER = ../benchmarks/bubblesort/bubblesort.h
+SUPPORT_HEADER = ../support.h
 
 all: $(TARGET)
 
-$(TARGET): $(SOURCE) $(BUBBLESORT_OBJ) $(BUBBLESORT_HEADER)
-	$(CC) $(CXXFLAGS) -o $(TARGET) $(SOURCE) $(BUBBLESORT_OBJ) $(BUBBLESORT_HEADER)
+$(TARGET): $(SOURCE) $(BUBBLESORT_OBJ) $(SUPPORT_HEADER)
+	$(CC) $(CXXFLAGS) -o $(TARGET) $(SOURCE) $(BUBBLESORT_OBJ) $(SUPPORT_HEADER)
 
 clean:
 	rm -f $(TARGET)
