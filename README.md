@@ -3,3 +3,7 @@ Tried running 40 runs with a bubblesort between 10 and 13 seconds of work on the
 
 ## Second round
 I have now changed out the vector from stdlib to a normal malloced array. And the bubblesort itself is a .o file that both plattforms use.
+
+
+## Differnt versions
+Most things are on the default: Intel SpeedStep ON, C states on, TurboBoost ON. On round 1 and 2 the base linux uses on_demand, on schedutil, i change to schedutil.
