@@ -9,6 +9,9 @@ extern "C" {
 // Benchmark function declaration
 int benchmark(void) __attribute__((noinline));
 
+// Initialise benchmark
+void initialise_benchmark(void);
+
 // Get benchmark name
 char* get_benchmark_name(void);
 

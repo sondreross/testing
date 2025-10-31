@@ -77,6 +77,8 @@ int main() {
     const int repetitions = 50;
     
     for (int rep = 0; rep < repetitions; rep++) {
+        initialise_benchmark();
+
         struct timespec start, end;
         // Read energy and timestamp before
         clock_gettime(CLOCK_MONOTONIC, &start);
