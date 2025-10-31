@@ -109,7 +109,7 @@ int main() {
         
         // Print CSV row (PKG only, no DRAM)
         printf("%s,%llu,%llu,%llu,%llu,%.6f,%.6f,%.3f,,,%.6f,%.3f\n",
-            get_benchmark_name(),
+            "bubblesort",
             (unsigned long long)cycles_elapsed,
             (unsigned long long)cycles_start,
             (unsigned long long)cycles_end,
