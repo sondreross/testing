@@ -4,7 +4,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
-#include"../support.h"
+#include <time.h>
+#include "../support.h"
 
 // MSR addresses
 #define MSR_RAPL_POWER_UNIT    0x606
@@ -73,8 +74,7 @@ int main() {
     // Print CSV header
     printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-    const size_t sizes[] = {100000};
-    const int repetitions = 30;
+    const int repetitions = 50;
     
     for (int rep = 0; rep < repetitions; rep++) {
         struct timespec start, end;
@@ -84,7 +84,7 @@ int main() {
         uint64_t cycles_start = rdtsc_begin();
         
         // Run benchmark
-        benchmark();
+        run_benchmark();
         
         // Read energy and timestamp after
         uint64_t cycles_end = rdtsc_end();
@@ -93,7 +93,7 @@ int main() {
         
         // Calculate results
         uint64_t cycles_elapsed = cycles_end - cycles_start;
-        uint64_t time_ns = (end.tv_sec - start.tv_sec) * 1'000'000'000ULL + (end.tv_nsec - start.tv_nsec);
+        uint64_t time_ns = (end.tv_sec - start.tv_sec) * 1000000000ULL + (end.tv_nsec - start.tv_nsec);
         double time_ms = time_ns / 1000000.0;
 
         // Handle energy counter wraparound (64-bit counter)
@@ -107,31 +107,13 @@ int main() {
         
         double pkg_joules = energy_delta * energy_unit;
         
-        // Read actual CPU frequency from /proc/cpuinfo
-        double cpu_freq_mhz = 3000.0; // Default fallback
-        FILE* cpuinfo = fopen("/proc/cpuinfo", "r");
-        if (cpuinfo) {
-            char line[256];
-            while (fgets(line, sizeof(line), cpuinfo)) {
-                if (strncmp(line, "cpu MHz", 7) == 0) {
-                    double mhz = 0.0;
-                    if (sscanf(line, "cpu MHz\t: %lf", &mhz) == 1 && mhz > 0.0) {
-                        cpu_freq_mhz = mhz;
-                        break;
-                    }
-                }
-            }
-            fclose(cpuinfo);
-        }
-        
-        
         // Print CSV row (PKG only, no DRAM)
-        printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,,,%.6f,%.3f\n",
+        printf("%s,%llu,%llu,%llu,%llu,%.6f,%.6f,%.3f,,,%.6f,%.3f\n",
             get_benchmark_name(),
             (unsigned long long)cycles_elapsed,
             (unsigned long long)cycles_start,
             (unsigned long long)cycles_end,
-            time_ns,
+            (unsigned long long)time_ns,
             time_ms,
             pkg_joules,
             pkg_joules * 1000,
