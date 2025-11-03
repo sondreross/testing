@@ -24,7 +24,7 @@ void Service::start(const std::string&){
   // Print CSV header (time columns removed)
   printf("benchmark,cpu_cycles,cycles_start,cycles_end,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-  const int repetitions = 30;
+  const int repetitions = 50;
   
   for (int i = 0; i < repetitions; ++i) {
     initialise_benchmark();
