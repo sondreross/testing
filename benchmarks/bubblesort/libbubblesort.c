@@ -28,7 +28,7 @@
 #define WORSTCASE 1
 #define FALSE 0
 #define TRUE 1
-#define NUMELEMS 100000
+#define NUMELEMS 80000
 #define MAXDIM   (NUMELEMS+1)
 
 // void Initialize(int Array []);
