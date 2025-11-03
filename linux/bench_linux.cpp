@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
-#include <time.h>
 #include "../support.h"
 
 // MSR addresses
@@ -71,32 +70,27 @@ int main() {
     uint64_t power_unit_raw = read_msr(cpu, MSR_RAPL_POWER_UNIT);
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
-    // Print CSV header
-    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    // Print CSV header (no wall-clock time columns)
+    printf("benchmark,cpu_cycles,cycles_start,cycles_end,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
     const int repetitions = 50;
     
     for (int rep = 0; rep < repetitions; rep++) {
         initialise_benchmark();
 
-        struct timespec start, end;
-        // Read energy and timestamp before
-        clock_gettime(CLOCK_MONOTONIC, &start);
+    // Read energy and timestamp before
         uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
         uint64_t cycles_start = rdtsc_begin();
         
         // Run benchmark
         benchmark();
         
-        // Read energy and timestamp after
+    // Read energy and timestamp after
         uint64_t cycles_end = rdtsc_end();
         uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
-        clock_gettime(CLOCK_MONOTONIC, &end);
         
-        // Calculate results
-        uint64_t cycles_elapsed = cycles_end - cycles_start;
-        uint64_t time_ns = (end.tv_sec - start.tv_sec) * 1000000000ULL + (end.tv_nsec - start.tv_nsec);
-        double time_ms = time_ns / 1000000.0;
+    // Calculate results
+    uint64_t cycles_elapsed = cycles_end - cycles_start;
 
         // Handle energy counter wraparound (64-bit counter)
         uint64_t energy_delta;
@@ -110,13 +104,11 @@ int main() {
         double pkg_joules = energy_delta * energy_unit;
         
         // Print CSV row (PKG only, no DRAM)
-        printf("%s,%llu,%llu,%llu,%llu,%.6f,%.6f,%.3f,,,%.6f,%.3f\n",
+        printf("%s,%llu,%llu,%llu,%.6f,%.3f,,,%.6f,%.3f\n",
             "bubblesort",
             (unsigned long long)cycles_elapsed,
             (unsigned long long)cycles_start,
             (unsigned long long)cycles_end,
-            (unsigned long long)time_ns,
-            time_ms,
             pkg_joules,
             pkg_joules * 1000,
             pkg_joules,  // total = pkg only

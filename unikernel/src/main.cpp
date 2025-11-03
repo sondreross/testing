@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <arch/x86/cpu.hpp>
-#include "../support.h"
+#include "../../support.h"
 
 // Check if RAPL is available
 bool check_rapl_support() {
@@ -21,31 +21,28 @@ bool check_rapl_support() {
 }
 
 void Service::start(const std::string&){
-  // Print CSV header (same as Linux version)
-  printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+  // Print CSV header (time columns removed)
+  printf("benchmark,cpu_cycles,cycles_start,cycles_end,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
   const int repetitions = 30;
   
-  for (size_t size : sizes) {
+  for (int i = 0; i < repetitions; ++i) {
+    initialise_benchmark();
     auto result = energy_bench::bench_function(
-      run_benchmark,
+      (void (*)(void))benchmark,
       energy_bench::PKG
     );
 
-    double time_ns = result.nanos_elapsed;
-    double time_ms = time_ns / 1'000'000.0;
     double pkg_joules = result.pkg_joules();
     double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
     double total_joules = result.total_joules();
 
     // Print CSV row
-    printf("%zu,%llu,%llu,%llu,%.3f,%.6f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
-      size,
+    printf("%s,%llu,%llu,%llu,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
+      "bubblesort",
       (unsigned long long)result.cycles_elapsed,
       (unsigned long long)result.cycles_start,
       (unsigned long long)result.cycles_end,
-      time_ns,
-      time_ms,
       pkg_joules,
       pkg_joules * 1000,
       dram_joules,
