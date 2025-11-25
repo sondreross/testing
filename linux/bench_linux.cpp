@@ -9,6 +9,8 @@
 // MSR addresses
 #define MSR_RAPL_POWER_UNIT    0x606
 #define MSR_PKG_ENERGY_STATUS  0x611
+#define MSR_TEMPERATURE_TARGET 0x1A2
+#define IA32_THERM_STATUS      0x19C
 
 // Read MSR value
 uint64_t read_msr(int cpu, uint32_t msr) {
@@ -63,6 +65,21 @@ static inline uint64_t rdtsc_end() {
     return ((uint64_t)hi << 32) | lo;
 }
 
+// Read CPU temperature
+double read_cpu_temp(int cpu) {
+    // Read temperature target (TjMax)
+    uint64_t temp_target = 100; // TODO: Fix this line to actually read MSR
+    uint32_t tj_max = (temp_target >> 16) & 0xFF;
+    
+    // Read thermal status
+    uint64_t therm_status = read_msr(cpu, IA32_THERM_STATUS);
+    uint32_t digital_readout = (therm_status >> 16) & 0x7F;
+    
+    // Calculate temperature: TjMax - Digital Readout
+    double temp = tj_max - digital_readout;
+    return temp;
+}
+
 int main() {
     const int cpu = 0; // Use CPU 0
     
@@ -71,23 +88,25 @@ int main() {
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
     // Print CSV header (no wall-clock time columns)
-    printf("benchmark,cpu_cycles,cycles_start,cycles_end,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    printf("benchmark,cpu_cycles,cycles_start,cycles_end,temp_before,temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
     const int repetitions = 50;
     
     for (int rep = 0; rep < repetitions; rep++) {
         initialise_benchmark();
 
-    // Read energy and timestamp before
+    // Read temperature, energy and timestamp before
+        double temp_before = read_cpu_temp(cpu);
         uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
         uint64_t cycles_start = rdtsc_begin();
         
         // Run benchmark
         benchmark();
         
-    // Read energy and timestamp after
+    // Read energy, timestamp and temperature after
         uint64_t cycles_end = rdtsc_end();
         uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
+        double temp_after = read_cpu_temp(cpu);
         
     // Calculate results
     uint64_t cycles_elapsed = cycles_end - cycles_start;
@@ -104,11 +123,13 @@ int main() {
         double pkg_joules = energy_delta * energy_unit;
         
         // Print CSV row (PKG only, no DRAM)
-        printf("%s,%llu,%llu,%llu,%.6f,%.3f,,,%.6f,%.3f\n",
+        printf("%s,%llu,%llu,%llu,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
             "bubblesort",
             (unsigned long long)cycles_elapsed,
             (unsigned long long)cycles_start,
             (unsigned long long)cycles_end,
+            temp_before,
+            temp_after,
             pkg_joules,
             pkg_joules * 1000,
             pkg_joules,  // total = pkg only

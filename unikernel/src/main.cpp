@@ -22,9 +22,9 @@ bool check_rapl_support() {
 
 void Service::start(const std::string&){
   // Print CSV header (time columns removed)
-  printf("benchmark,cpu_cycles,cycles_start,cycles_end,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+  printf("benchmark,cpu_cycles,cycles_start,cycles_end,temp_before,temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-  const int repetitions = 50;
+  const int repetitions = 30;
   
   for (int i = 0; i < repetitions; ++i) {
     initialise_benchmark();
@@ -33,16 +33,20 @@ void Service::start(const std::string&){
       energy_bench::PKG
     );
 
+    double temp_before = result.therm_tcc - result.therm_before;
+    double temp_after = result.therm_tcc - result.therm_after;
     double pkg_joules = result.pkg_joules();
     double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
     double total_joules = result.total_joules();
 
     // Print CSV row
-    printf("%s,%llu,%llu,%llu,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
+    printf("%s,%llu,%llu,%llu,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
       "bubblesort",
       (unsigned long long)result.cycles_elapsed,
       (unsigned long long)result.cycles_start,
       (unsigned long long)result.cycles_end,
+      temp_before,
+      temp_after,
       pkg_joules,
       pkg_joules * 1000,
       dram_joules,
