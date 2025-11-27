@@ -66,7 +66,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "support.h"
+#include "../../support.h"
 
 #define SCALE_FACTOR   (REPEAT_FACTOR >> 6)
 
@@ -215,3 +215,7 @@ AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA";
     return 0;
 }
 
+
+char* get_benchmark_name(void) {
+    return "fasta";
+}

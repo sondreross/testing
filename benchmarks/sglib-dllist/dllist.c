@@ -21,7 +21,7 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "support.h"
+#include "../../support.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -155,3 +155,7 @@ int benchmark()
   return cnt;
 }
 
+
+char* get_benchmark_name(void) {
+    return "sglib-dllist";
+}

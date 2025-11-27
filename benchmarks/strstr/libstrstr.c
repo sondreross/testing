@@ -32,7 +32,7 @@
  *
  * Stephen R. van den Berg, berg@pool.informatik.rwth-aachen.de */
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -155,4 +155,8 @@ int verify_benchmark(int r) {
   if (r != expected)
     return 0;
   return 1;
+}
+
+char* get_benchmark_name(void) {
+    return "strstr";
 }

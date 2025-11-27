@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+#include <time.h>
 #include "../support.h"
 
 // MSR addresses
@@ -11,6 +12,7 @@
 #define MSR_PKG_ENERGY_STATUS  0x611
 #define MSR_TEMPERATURE_TARGET 0x1A2
 #define IA32_THERM_STATUS      0x19C
+#define IA32_PACKAGE_THERM_STATUS 0x1B1
 
 // Read MSR value
 uint64_t read_msr(int cpu, uint32_t msr) {
@@ -68,12 +70,27 @@ static inline uint64_t rdtsc_end() {
 // Read CPU temperature
 double read_cpu_temp(int cpu) {
     // Read temperature target (TjMax)
-    uint64_t temp_target = 100; // TODO: Fix this line to actually read MSR
+    uint64_t temp_target = read_msr(cpu, MSR_TEMPERATURE_TARGET);
     uint32_t tj_max = (temp_target >> 16) & 0xFF;
     
     // Read thermal status
     uint64_t therm_status = read_msr(cpu, IA32_THERM_STATUS);
     uint32_t digital_readout = (therm_status >> 16) & 0x7F;
+    
+    // Calculate temperature: TjMax - Digital Readout
+    double temp = tj_max - digital_readout;
+    return temp;
+}
+
+// Read package temperature
+double read_pkg_temp(int cpu) {
+    // Read temperature target (TjMax)
+    uint64_t temp_target = read_msr(cpu, MSR_TEMPERATURE_TARGET);
+    uint32_t tj_max = (temp_target >> 16) & 0xFF;
+    
+    // Read package thermal status
+    uint64_t pkg_therm_status = read_msr(cpu, IA32_PACKAGE_THERM_STATUS);
+    uint32_t digital_readout = (pkg_therm_status >> 16) & 0x7F;
     
     // Calculate temperature: TjMax - Digital Readout
     double temp = tj_max - digital_readout;
@@ -88,7 +105,7 @@ int main() {
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
     // Print CSV header (no wall-clock time columns)
-    printf("benchmark,cpu_cycles,cycles_start,cycles_end,temp_before,temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
     const int repetitions = 50;
     
@@ -96,7 +113,10 @@ int main() {
         initialise_benchmark();
 
     // Read temperature, energy and timestamp before
+        struct timespec time_start, time_end;
+        clock_gettime(CLOCK_MONOTONIC, &time_start);
         double temp_before = read_cpu_temp(cpu);
+        double pkg_temp_before = read_pkg_temp(cpu);
         uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
         uint64_t cycles_start = rdtsc_begin();
         
@@ -107,9 +127,16 @@ int main() {
         uint64_t cycles_end = rdtsc_end();
         uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
         double temp_after = read_cpu_temp(cpu);
+        double pkg_temp_after = read_pkg_temp(cpu);
+        clock_gettime(CLOCK_MONOTONIC, &time_end);
         
     // Calculate results
     uint64_t cycles_elapsed = cycles_end - cycles_start;
+        
+        // Calculate wall clock time
+        double time_ns = (time_end.tv_sec - time_start.tv_sec) * 1e9 + 
+                        (time_end.tv_nsec - time_start.tv_nsec);
+        double time_ms = time_ns / 1e6;
 
         // Handle energy counter wraparound (64-bit counter)
         uint64_t energy_delta;
@@ -123,13 +150,17 @@ int main() {
         double pkg_joules = energy_delta * energy_unit;
         
         // Print CSV row (PKG only, no DRAM)
-        printf("%s,%llu,%llu,%llu,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
+        printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
             "bubblesort",
             (unsigned long long)cycles_elapsed,
             (unsigned long long)cycles_start,
             (unsigned long long)cycles_end,
+            time_ns,
+            time_ms,
             temp_before,
             temp_after,
+            pkg_temp_before,
+            pkg_temp_after,
             pkg_joules,
             pkg_joules * 1000,
             pkg_joules,  // total = pkg only

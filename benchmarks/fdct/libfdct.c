@@ -59,7 +59,7 @@
 #define NULL 0
 
 #include <string.h>
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -307,3 +307,7 @@ int verify_benchmark(int unused)
 
 
 /* vim: set ts=3 sw=3 et: */
+
+char* get_benchmark_name(void) {
+    return "fdct";
+}

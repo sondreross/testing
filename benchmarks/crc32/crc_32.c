@@ -19,7 +19,7 @@
 
 /* Crc - 32 BIT ANSI X3.66 CRC checksum files */
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -209,3 +209,7 @@ int verify_benchmark(int r)
 
 
 /* vim: set ts=3 sw=3 et: */
+
+char* get_benchmark_name(void) {
+    return "crc32";
+}

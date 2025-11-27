@@ -57,7 +57,7 @@
 /*                                                                       */
 /*************************************************************************/
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -133,3 +133,7 @@ int benchmark()
   return 0;
 }
 
+
+char* get_benchmark_name(void) {
+    return "bs";
+}

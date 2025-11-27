@@ -54,7 +54,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -518,4 +518,8 @@ int benchmark()
 
     // done
     return 0;
+}
+
+char* get_benchmark_name(void) {
+    return "huffbench";
 }

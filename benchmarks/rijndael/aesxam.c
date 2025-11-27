@@ -64,7 +64,7 @@
 #include <ctype.h>
 
 #include "aes.h"
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -262,3 +262,7 @@ exit:
 
 
 /* vim: set ts=3 sw=3 et: */
+
+char* get_benchmark_name(void) {
+    return "rijndael";
+}

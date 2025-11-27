@@ -19,7 +19,7 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "support.h"
+#include "../../support.h"
 
 #include "miniz.h"
 #include <string.h>
@@ -79,3 +79,7 @@ int benchmark()
 
 }
 
+
+char* get_benchmark_name(void) {
+    return "miniz";
+}

@@ -80,7 +80,7 @@ C**********************************************************************
 #include <string.h>
 #include <math.h>
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -435,3 +435,7 @@ POUT(long N, long J, long K, double X1, double X2, double X3, double X4)
 }
 #endif
 
+
+char* get_benchmark_name(void) {
+    return "whetstone";
+}

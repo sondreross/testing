@@ -30,7 +30,7 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "support.h"
+#include "../../support.h"
 #include <stdint.h>
 
 #define FLT_UWORD_IS_NAN(x) ((x)>0x7f800000L)

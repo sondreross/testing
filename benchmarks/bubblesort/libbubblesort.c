@@ -120,3 +120,7 @@ int verify_benchmark(int result) {
    return 1;
 }
 
+
+char* get_benchmark_name(void) {
+    return "bubblesort";
+}

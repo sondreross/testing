@@ -20,7 +20,7 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "support.h"
+#include "../../support.h"
 #include "sglib.h"
 
 /* This scale factor will be changed to equalise the runtime of the
@@ -71,4 +71,8 @@ int verify_benchmark(int r) {
   if (r != expected)
     return 0;
   return 1;
+}
+
+char* get_benchmark_name(void) {
+    return "sglib-arraybinsearch";
 }

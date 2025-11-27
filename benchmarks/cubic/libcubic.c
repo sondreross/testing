@@ -66,3 +66,7 @@ void SolveCubic(double  a,
 #endif /* TEST */
 
 /* vim: set ts=3 sw=3 et: */
+
+char* get_benchmark_name(void) {
+    return "cubic";
+}

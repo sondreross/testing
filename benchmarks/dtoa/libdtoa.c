@@ -208,7 +208,7 @@
  *	used for input more than STRTOD_DIGLIM digits long (default 40).
  */
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -4317,4 +4317,8 @@ int verify_benchmark(int r)
   else {
     return 1;
   }
+}
+
+char* get_benchmark_name(void) {
+    return "dtoa";
 }

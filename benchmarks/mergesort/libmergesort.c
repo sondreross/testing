@@ -299,3 +299,7 @@ int verify_benchmark(int unused)
 	// 		return 0;
 	return 1;
 }
+
+char* get_benchmark_name(void) {
+    return "mergesort";
+}

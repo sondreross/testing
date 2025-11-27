@@ -24,7 +24,7 @@
    Permission to license under GPL obtained by email from Björn Lisper
  */
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */

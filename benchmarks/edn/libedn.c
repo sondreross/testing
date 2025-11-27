@@ -25,7 +25,7 @@
    Permission to license under GPL obtained by email from Björn Lisper
  */
 
-#include "support.h"
+#include "../../support.h"
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
@@ -356,4 +356,8 @@ int verify_benchmark(int unused)
 	if (c != exp_c || d != exp_d || e != exp_e)
 		return 0;
         return 1;
+}
+
+char* get_benchmark_name(void) {
+    return "edn";
 }

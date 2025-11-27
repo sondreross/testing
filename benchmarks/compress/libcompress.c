@@ -47,7 +47,7 @@
  * JG 2012/09/28: Comment within comment removed
  */
 
-#include "support.h"
+#include "../../support.h"
 
 // This scale factor will be changed to equalise the runtime of the
 // benchmarks
@@ -538,4 +538,8 @@ void output( code_int code )
       bytes_out += (offset + 7) / 8;
       offset = 0;
    }
+}
+
+char* get_benchmark_name(void) {
+    return "compress";
 }

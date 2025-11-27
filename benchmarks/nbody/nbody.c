@@ -67,7 +67,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "support.h"
+#include "../../support.h"
 
 #define SCALE_FACTOR (REPEAT_FACTOR >> 8)
 
@@ -232,4 +232,8 @@ int verify_benchmark(int unused) {
          return 0;
    }
    return 1;
+}
+
+char* get_benchmark_name(void) {
+    return "nbody";
 }
