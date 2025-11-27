@@ -45,7 +45,7 @@ void Service::start(const std::string&){
 
     // Print CSV row matching Linux format
     printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
-      "bubblesort",
+      get_benchmark_name(),
       (unsigned long long)result.cycles_elapsed,
       (unsigned long long)result.cycles_start,
       (unsigned long long)result.cycles_end,
