@@ -284,7 +284,7 @@ void fdct(short int *blk, int lx)
 
 
 void
-initialise_benchmark (void)
+initialise_benchmark_fdct (void)
 {
 }
 
@@ -299,7 +299,7 @@ int fdct_bench()
   return 0;
 }
 
-int verify_benchmark(int unused)
+int verify_benchmark_fdct(int unused)
 {
   return !memcmp (block, exp_res, 64 * sizeof (block[0]));
 
@@ -308,6 +308,6 @@ int verify_benchmark(int unused)
 
 /* vim: set ts=3 sw=3 et: */
 
-char* get_benchmark_name(void) {
+char* get_benchmark_name_fdct(void) {
     return "fdct";
 }

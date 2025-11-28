@@ -426,7 +426,7 @@ unsigned char hash[32] =
 uint8_t buffer[SHA256_DIGEST_SIZE];
 
 int
-verify_benchmark (int res __attribute ((unused)) )
+verify_benchmark_nettle_sha256 (int res __attribute ((unused)) )
 {
   bool correct = true;
 
@@ -440,7 +440,7 @@ verify_benchmark (int res __attribute ((unused)) )
 }
 
 void
-initialise_benchmark (void)
+initialise_benchmark_nettle_sha256 (void)
 {
   memset (buffer, 0, sizeof(buffer));
 }

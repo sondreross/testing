@@ -76,18 +76,17 @@ int cubic()
   return 0;
 }
 
-int initialise_benchmark(void)
+void initialise_benchmark_cubic(void)
 {
-  return 0;
 }
 
-int verify_benchmark(int unused)
+int verify_benchmark_cubic(int unused)
 {
   return -1;
 }
 
 /* vim: set ts=3 sw=3 et: */
 
-char* get_benchmark_name(void) {
+char* get_benchmark_name_cubic(void) {
     return "cubic";
 }

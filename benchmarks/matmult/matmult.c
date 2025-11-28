@@ -166,7 +166,7 @@ void Multiply(matrix A, matrix B, matrix Res)
       }
 }
 
-void initialise_benchmark() {
+void initialise_benchmark_matmult() {
    InitSeed();
    int OuterIndex, InnerIndex;
 
@@ -178,7 +178,7 @@ void initialise_benchmark() {
          ArrayB[OuterIndex][InnerIndex] = RANDOM_VALUE;
 }
 
-int verify_benchmark(int unused)
+int verify_benchmark_matmult(int unused)
 {
   int i, j;
 #ifdef MATMULT_FLOAT
@@ -227,6 +227,6 @@ int verify_benchmark(int unused)
 
 /* vim: set ts=3 sw=3 et: */
 
-char* get_benchmark_name(void) {
+char* get_benchmark_name_matmult(void) {
     return "matmult";
 }

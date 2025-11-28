@@ -122,14 +122,14 @@ struct Benchmark {
 };
 
 Benchmark benchmarks[] = {
-    {"crc32", initialise_benchmark, crc32, get_benchmark_name},
-    {"cubic", initialise_benchmark, cubic, get_benchmark_name},
-    {"dijkstra", initialise_benchmark, dijkstra_bench, get_benchmark_name},
-    {"fdct", initialise_benchmark, fdct_bench, get_benchmark_name},
-    {"fir", initialise_benchmark, fir, get_benchmark_name},
-    {"matmult", initialise_benchmark, matmult, get_benchmark_name},
-    {"nettle-sha256", initialise_benchmark, nettle_sha256_bench, get_benchmark_name},
-    {"rijndael", initialise_benchmark, rijndael, get_benchmark_name}
+    {"crc32", initialise_benchmark_crc32, crc32, get_benchmark_name_crc32},
+    {"cubic", initialise_benchmark_cubic, cubic, get_benchmark_name_cubic},
+    {"dijkstra", initialise_benchmark_dijkstra, dijkstra_bench, get_benchmark_name_dijkstra},
+    {"fdct", initialise_benchmark_fdct, fdct_bench, get_benchmark_name_fdct},
+    {"fir", initialise_benchmark_fir, fir, get_benchmark_name_fir},
+    {"matmult", initialise_benchmark_matmult, matmult, get_benchmark_name_matmult},
+    {"nettle-sha256", initialise_benchmark_nettle_sha256, nettle_sha256_bench, NULL},
+    {"rijndael", initialise_benchmark_rijndael, rijndael, get_benchmark_name_rijndael}
 };
 
 int main() {

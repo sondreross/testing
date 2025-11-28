@@ -191,14 +191,14 @@ char *presetkey="ABCDEF1234567890ABCDEF1234567890";
 /* This benchmark does not support verification */
 
 int
-verify_benchmark (int res __attribute ((unused)) )
+verify_benchmark_rijndael (int res __attribute ((unused)) )
 {
   return -1;
 }
 
 
 void
-initialise_benchmark (void)
+initialise_benchmark_rijndael (void)
 {
 }
 
@@ -263,6 +263,6 @@ exit:
 
 /* vim: set ts=3 sw=3 et: */
 
-char* get_benchmark_name(void) {
+char* get_benchmark_name_rijndael(void) {
     return "rijndael";
 }

@@ -185,7 +185,7 @@ DWORD crc32pseudo()
 }
 
 void
-initialise_benchmark (void)
+initialise_benchmark_crc32 (void)
 {
 }
 
@@ -198,7 +198,7 @@ int crc32()
   return (int)r;
 }
 
-int verify_benchmark(int r)
+int verify_benchmark_crc32(int r)
 {
   int expected = 1207487004;
 
@@ -210,6 +210,6 @@ int verify_benchmark(int r)
 
 /* vim: set ts=3 sw=3 et: */
 
-char* get_benchmark_name(void) {
+char* get_benchmark_name_crc32(void) {
     return "crc32";
 }

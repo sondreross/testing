@@ -22,22 +22,33 @@ extern "C" {
 // Array of benchmark functions
 typedef int (*benchmark_func_t)(void);
 typedef void (*init_func_t)(void);
+typedef void (*void_func_t)(void);
+
+// Wrapper functions to convert int-returning benchmarks to void
+void crc32_wrapper() { (void)crc32(); }
+void cubic_wrapper() { (void)cubic(); }
+void dijkstra_wrapper() { (void)dijkstra_bench(); }
+void fdct_wrapper() { (void)fdct_bench(); }
+void fir_wrapper() { (void)fir(); }
+void matmult_wrapper() { (void)matmult(); }
+void nettle_sha256_wrapper() { (void)nettle_sha256_bench(); }
+void rijndael_wrapper() { (void)rijndael(); }
 
 struct Benchmark {
     const char* name;
     init_func_t init;
-    benchmark_func_t func;
+    void_func_t func;
 };
 
 Benchmark benchmarks[] = {
-    {"crc32", initialise_benchmark, crc32},
-    {"cubic", initialise_benchmark, cubic},
-    {"dijkstra", initialise_benchmark, dijkstra_bench},
-    {"fdct", initialise_benchmark, fdct_bench},
-    {"fir", initialise_benchmark, fir},
-    {"matmult", initialise_benchmark, matmult},
-    {"nettle-sha256", initialise_benchmark, nettle_sha256_bench},
-    {"rijndael", initialise_benchmark, rijndael}
+    {"crc32", initialise_benchmark_crc32, crc32_wrapper},
+    {"cubic", initialise_benchmark_cubic, cubic_wrapper},
+    {"dijkstra", initialise_benchmark_dijkstra, dijkstra_wrapper},
+    {"fdct", initialise_benchmark_fdct, fdct_wrapper},
+    {"fir", initialise_benchmark_fir, fir_wrapper},
+    {"matmult", initialise_benchmark_matmult, matmult_wrapper},
+    {"nettle-sha256", initialise_benchmark_nettle_sha256, nettle_sha256_wrapper},
+    {"rijndael", initialise_benchmark_rijndael, rijndael_wrapper}
 };
 
 // Check if RAPL is available
