@@ -235,7 +235,7 @@ initialise_benchmark (void)
 
 
 
-int benchmark() {
+int dijkstra_bench() {
    int i,j;
 
    output_count = 0;

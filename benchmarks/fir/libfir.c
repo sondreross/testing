@@ -289,7 +289,7 @@ initialise_benchmark (void)
 
 
 int
-benchmark (void)
+fir (void)
 {
   long  output[OUTSIZE];
 

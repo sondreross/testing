@@ -19,7 +19,7 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "support.h"
+#include "../../support.h"
 #include "snipmath.h"
 
 /* This scale factor will be changed to equalise the runtime of the
@@ -43,7 +43,7 @@ initialise_benchmark (void)
 
 
 
-int benchmark(void)
+int cubic(void)
 {
    double  a1 = 1.0, b1 = -10.5, c1 = 32.0, d1 = -30.0;
    double  a2 = 1.0, b2 = -4.5, c2 = 17.0, d2 = -30.0;

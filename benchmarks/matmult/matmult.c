@@ -116,7 +116,7 @@ void Test(matrix A, matrix B, matrix Res);
 void Initialize(matrix Array);
 int RandomInteger(void);
 
-int benchmark()
+int matmult()
 {
    Test(ArrayA, ArrayB, ResultArray);
 

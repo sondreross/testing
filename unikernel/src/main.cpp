@@ -7,6 +7,39 @@
 #include <arch/x86/cpu.hpp>
 #include "../../support.h"
 
+// Include all benchmark headers
+extern "C" {
+#include "../../benchmarks/crc32/crc32.h"
+#include "../../benchmarks/cubic/cubic.h"
+#include "../../benchmarks/dijkstra/dijkstra.h"
+#include "../../benchmarks/fdct/fdct.h"
+#include "../../benchmarks/fir/fir.h"
+#include "../../benchmarks/matmult/matmult.h"
+#include "../../benchmarks/nettle-sha256/nettle_sha256.h"
+#include "../../benchmarks/rijndael/rijndael.h"
+}
+
+// Array of benchmark functions
+typedef int (*benchmark_func_t)(void);
+typedef void (*init_func_t)(void);
+
+struct Benchmark {
+    const char* name;
+    init_func_t init;
+    benchmark_func_t func;
+};
+
+Benchmark benchmarks[] = {
+    {"crc32", initialise_benchmark, crc32},
+    {"cubic", initialise_benchmark, cubic},
+    {"dijkstra", initialise_benchmark, dijkstra_bench},
+    {"fdct", initialise_benchmark, fdct_bench},
+    {"fir", initialise_benchmark, fir},
+    {"matmult", initialise_benchmark, matmult},
+    {"nettle-sha256", initialise_benchmark, nettle_sha256_bench},
+    {"rijndael", initialise_benchmark, rijndael}
+};
+
 // Check if RAPL is available
 bool check_rapl_support() {
   // Try reading RAPL power unit MSR
@@ -26,42 +59,45 @@ void Service::start(const std::string&){
 
   const int repetitions = 30;
   
-  for (int i = 0; i < repetitions; ++i) {
-    initialise_benchmark();
-    auto result = energy_bench::bench_function(
-      (void (*)(void))benchmark,
-      energy_bench::PKG
-    );
+  // Run each benchmark
+  for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
+    for (int i = 0; i < repetitions; ++i) {
+      benchmarks[b].init();
+      auto result = energy_bench::bench_function(
+        benchmarks[b].func,
+        energy_bench::PKG
+      );
 
-    double temp_before = result.therm_tcc - result.therm_start;
-    double temp_after = result.therm_tcc - result.therm_end;
-    double pkg_temp_before = result.therm_tcc - result.pkg_therm_start;
-    double pkg_temp_after = result.therm_tcc - result.pkg_therm_end;
-    double time_ns = result.nanos_elapsed;
-    double time_ms = time_ns / 1e6;
-    double pkg_joules = result.pkg_joules();
-    double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
-    double total_joules = result.total_joules();
+      double temp_before = result.therm_tcc - result.therm_start;
+      double temp_after = result.therm_tcc - result.therm_end;
+      double pkg_temp_before = result.therm_tcc - result.pkg_therm_start;
+      double pkg_temp_after = result.therm_tcc - result.pkg_therm_end;
+      double time_ns = result.nanos_elapsed;
+      double time_ms = time_ns / 1e6;
+      double pkg_joules = result.pkg_joules();
+      double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
+      double total_joules = result.total_joules();
 
-    // Print CSV row matching Linux format
-    printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
-      get_benchmark_name(),
-      (unsigned long long)result.cycles_elapsed,
-      (unsigned long long)result.cycles_start,
-      (unsigned long long)result.cycles_end,
-      time_ns,
-      time_ms,
-      temp_before,
-      temp_after,
-      pkg_temp_before,
-      pkg_temp_after,
-      pkg_joules,
-      pkg_joules * 1000,
-      dram_joules,
-      dram_joules * 1000,
-      total_joules,
-      total_joules * 1000
-    );
+      // Print CSV row matching Linux format
+      printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
+        benchmarks[b].name,
+        (unsigned long long)result.cycles_elapsed,
+        (unsigned long long)result.cycles_start,
+        (unsigned long long)result.cycles_end,
+        time_ns,
+        time_ms,
+        temp_before,
+        temp_after,
+        pkg_temp_before,
+        pkg_temp_after,
+        pkg_joules,
+        pkg_joules * 1000,
+        dram_joules,
+        dram_joules * 1000,
+        total_joules,
+        total_joules * 1000
+      );
+    }
   }
   os::shutdown();
 }

@@ -6,7 +6,21 @@ find_package(IncludeOS)
 
 include(os)
 
-os_add_executable(hello_includeos "Hello world - OS included" src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/bubblesort/libbubblesort.o)
+# Define all benchmark object files
+set(BENCHMARK_OBJS
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/crc_32.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libcubic.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/basicmath_small.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/dijkstra_small.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libfdct.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libfir.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/matmult.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/nettle-sha256.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/aesxam.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/aes.o
+)
+
+os_add_executable(hello_includeos "Hello world - OS included" src/main.cpp ${BENCHMARK_OBJS})
 os_add_stdout(hello_includeos default_stdout)
 
 # This would be for application specific libs.

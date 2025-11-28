@@ -204,7 +204,7 @@ initialise_benchmark (void)
 
 
 
-int benchmark()
+int rijndael()
 {
    char    *cp=0, ch=0;
    byte key[32]={0};

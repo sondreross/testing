@@ -446,7 +446,7 @@ initialise_benchmark (void)
 }
 
 int
-benchmark (void)
+nettle_sha256_bench (void)
 {
   struct sha256_ctx ctx;
   nettle_sha256.init (&ctx);

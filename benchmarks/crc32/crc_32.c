@@ -191,7 +191,7 @@ initialise_benchmark (void)
 
 
 
-int benchmark()
+int crc32()
 {
   DWORD r;
   r = crc32pseudo();

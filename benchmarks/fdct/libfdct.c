@@ -290,7 +290,7 @@ initialise_benchmark (void)
 
 
 #include <stdio.h>
-int benchmark()
+int fdct_bench()
 {
   /* Need to reinitialize the input data each time */
 

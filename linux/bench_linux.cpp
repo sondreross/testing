@@ -7,6 +7,18 @@
 #include <time.h>
 #include "../support.h"
 
+// Include all benchmark headers
+extern "C" {
+#include "../benchmarks/crc32/crc32.h"
+#include "../benchmarks/cubic/cubic.h"
+#include "../benchmarks/dijkstra/dijkstra.h"
+#include "../benchmarks/fdct/fdct.h"
+#include "../benchmarks/fir/fir.h"
+#include "../benchmarks/matmult/matmult.h"
+#include "../benchmarks/nettle-sha256/nettle_sha256.h"
+#include "../benchmarks/rijndael/rijndael.h"
+}
+
 // MSR addresses
 #define MSR_RAPL_POWER_UNIT    0x606
 #define MSR_PKG_ENERGY_STATUS  0x611
@@ -97,6 +109,29 @@ double read_pkg_temp(int cpu) {
     return temp;
 }
 
+// Array of benchmark functions
+typedef int (*benchmark_func_t)(void);
+typedef void (*init_func_t)(void);
+typedef char* (*name_func_t)(void);
+
+struct Benchmark {
+    const char* name;
+    init_func_t init;
+    benchmark_func_t func;
+    name_func_t get_name;
+};
+
+Benchmark benchmarks[] = {
+    {"crc32", initialise_benchmark, crc32, get_benchmark_name},
+    {"cubic", initialise_benchmark, cubic, get_benchmark_name},
+    {"dijkstra", initialise_benchmark, dijkstra_bench, get_benchmark_name},
+    {"fdct", initialise_benchmark, fdct_bench, get_benchmark_name},
+    {"fir", initialise_benchmark, fir, get_benchmark_name},
+    {"matmult", initialise_benchmark, matmult, get_benchmark_name},
+    {"nettle-sha256", initialise_benchmark, nettle_sha256_bench, get_benchmark_name},
+    {"rijndael", initialise_benchmark, rijndael, get_benchmark_name}
+};
+
 int main() {
     const int cpu = 0; // Use CPU 0
     
@@ -109,26 +144,28 @@ int main() {
 
     const int repetitions = 50;
     
-    for (int rep = 0; rep < repetitions; rep++) {
-        initialise_benchmark();
+    // Run each benchmark
+    for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
+        for (int rep = 0; rep < repetitions; rep++) {
+            benchmarks[b].init();
 
-    // Read temperature, energy and timestamp before
-        struct timespec time_start, time_end;
-        clock_gettime(CLOCK_MONOTONIC, &time_start);
-        double temp_before = read_cpu_temp(cpu);
-        double pkg_temp_before = read_pkg_temp(cpu);
-        uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
-        uint64_t cycles_start = rdtsc_begin();
-        
-        // Run benchmark
-        benchmark();
-        
-    // Read energy, timestamp and temperature after
-        uint64_t cycles_end = rdtsc_end();
-        uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
-        double temp_after = read_cpu_temp(cpu);
-        double pkg_temp_after = read_pkg_temp(cpu);
-        clock_gettime(CLOCK_MONOTONIC, &time_end);
+        // Read temperature, energy and timestamp before
+            struct timespec time_start, time_end;
+            clock_gettime(CLOCK_MONOTONIC, &time_start);
+            double temp_before = read_cpu_temp(cpu);
+            double pkg_temp_before = read_pkg_temp(cpu);
+            uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
+            uint64_t cycles_start = rdtsc_begin();
+            
+            // Run benchmark
+            benchmarks[b].func();
+            
+        // Read energy, timestamp and temperature after
+            uint64_t cycles_end = rdtsc_end();
+            uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
+            double temp_after = read_cpu_temp(cpu);
+            double pkg_temp_after = read_pkg_temp(cpu);
+            clock_gettime(CLOCK_MONOTONIC, &time_end);
         
     // Calculate results
     uint64_t cycles_elapsed = cycles_end - cycles_start;
@@ -149,23 +186,24 @@ int main() {
         
         double pkg_joules = energy_delta * energy_unit;
         
-        // Print CSV row (PKG only, no DRAM)
-        printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
-            get_benchmark_name(),
-            (unsigned long long)cycles_elapsed,
-            (unsigned long long)cycles_start,
-            (unsigned long long)cycles_end,
-            time_ns,
-            time_ms,
-            temp_before,
-            temp_after,
-            pkg_temp_before,
-            pkg_temp_after,
-            pkg_joules,
-            pkg_joules * 1000,
-            pkg_joules,  // total = pkg only
-            pkg_joules * 1000
-        );
+            // Print CSV row (PKG only, no DRAM)
+            printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
+                benchmarks[b].name,
+                (unsigned long long)cycles_elapsed,
+                (unsigned long long)cycles_start,
+                (unsigned long long)cycles_end,
+                time_ns,
+                time_ms,
+                temp_before,
+                temp_after,
+                pkg_temp_before,
+                pkg_temp_after,
+                pkg_joules,
+                pkg_joules * 1000,
+                pkg_joules,  // total = pkg only
+                pkg_joules * 1000
+            );
+        }
     }
     
     return 0;
