@@ -33,6 +33,10 @@
    benchmarks. */
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 0)
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 100000
+#endif
+
 // From nettle/nettle-types.h
 
 /* Hash algorithms */
@@ -448,10 +452,12 @@ initialise_benchmark_nettle_sha256 (void)
 int
 nettle_sha256_bench (void)
 {
-  struct sha256_ctx ctx;
-  nettle_sha256.init (&ctx);
-  nettle_sha256.update (&ctx, sizeof (msg), msg);
-  nettle_sha256.digest (&ctx, nettle_sha256.digest_size, buffer);
+  for (int i = 0; i < BENCHMARK_REPEAT; i++) {
+    struct sha256_ctx ctx;
+    nettle_sha256.init (&ctx);
+    nettle_sha256.update (&ctx, sizeof (msg), msg);
+    nettle_sha256.digest (&ctx, nettle_sha256.digest_size, buffer);
+  }
   return 0;
 }
 

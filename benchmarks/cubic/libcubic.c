@@ -28,6 +28,10 @@
 #include <math.h>
 #include "snipmath.h"
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 58888
+#endif
+
 void SolveCubic(double  a,
       double  b,
       double  c,
@@ -71,7 +75,9 @@ int cubic()
   double  x[3];
   int     solutions;
 
-  SolveCubic(a1, b1, c1, d1, &solutions, x);
+  for (int i = 0; i < BENCHMARK_REPEAT; i++) {
+    SolveCubic(a1, b1, c1, d1, &solutions, x);
+  }
 
   return 0;
 }

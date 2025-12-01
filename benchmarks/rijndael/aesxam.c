@@ -70,6 +70,10 @@
    benchmarks. */
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 9)
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 100000
+#endif
+
 #ifndef fpos_t
    #define fpos_t size_t
 #endif
@@ -211,7 +215,7 @@ int rijndael()
    int     i=0, by=0, key_len=0, err=0;
    byte    encoutbuf[16], decoutbuf[16];
 
-   {
+   for (int repeat = 0; repeat < BENCHMARK_REPEAT; repeat++) {
       aes     ctx = {0};
       by=0; key_len=0; err = 0;
       cp = presetkey;   /* this is a pointer to the hexadecimal key digits  */
@@ -252,7 +256,6 @@ int rijndael()
       set_key(key, key_len, dec, &ctx);
 
       err = decfile(&ctx, decoutbuf);
-
    }
 
 exit:

@@ -26,6 +26,10 @@
    benchmarks. */
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 13)
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 1
+#endif
+
 
 /* This benchmark does not support verification */
 
@@ -54,19 +58,21 @@ int cubic2(void)
    double output[48] = {0};
    double *output_pos = &(output[0]);
 
-   /* solve some cubic functions */
-   /* should get 3 solutions: 2, 6 & 2.5   */
-   SolveCubic(a1, b1, c1, d1, &solutions, output);
-   /* should get 1 solution: 2.5           */
-   SolveCubic(a2, b2, c2, d2, &solutions, output);
-   SolveCubic(a3, b3, c3, d3, &solutions, output);
-   SolveCubic(a4, b4, c4, d4, &solutions, output);
-   /* Now solve some random equations */
-   for(a1=1;a1<3;a1++) {
-      for(b1=10;b1>8;b1--) {
-         for(c1=5;c1<6;c1+=0.5) {
-            for(d1=-1;d1>-3;d1--) {
-               SolveCubic(a1, b1, c1, d1, &solutions, output_pos);
+   for (int repeat = 0; repeat < BENCHMARK_REPEAT; repeat++) {
+      /* solve some cubic functions */
+      /* should get 3 solutions: 2, 6 & 2.5   */
+      SolveCubic(a1, b1, c1, d1, &solutions, output);
+      /* should get 1 solution: 2.5           */
+      SolveCubic(a2, b2, c2, d2, &solutions, output);
+      SolveCubic(a3, b3, c3, d3, &solutions, output);
+      SolveCubic(a4, b4, c4, d4, &solutions, output);
+      /* Now solve some random equations */
+      for(a1=1;a1<3;a1++) {
+         for(b1=10;b1>8;b1--) {
+            for(c1=5;c1<6;c1+=0.5) {
+               for(d1=-1;d1>-3;d1--) {
+                  SolveCubic(a1, b1, c1, d1, &solutions, output_pos);
+               }
             }
          }
       }

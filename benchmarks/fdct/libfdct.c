@@ -65,6 +65,10 @@
    benchmarks. */
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 0)
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 58888
+#endif
+
 #ifdef IO
 #include "libp.c"
 #include "arith.c"
@@ -292,10 +296,11 @@ initialise_benchmark_fdct (void)
 #include <stdio.h>
 int fdct_bench()
 {
-  /* Need to reinitialize the input data each time */
-
-  memcpy (block, block_ref, 64 * sizeof (block[0]));
-  fdct(block, 8);
+  for (int i = 0; i < BENCHMARK_REPEAT; i++) {
+    /* Need to reinitialize the input data each time */
+    memcpy (block, block_ref, 64 * sizeof (block[0]));
+    fdct(block, 8);
+  }
   return 0;
 }
 

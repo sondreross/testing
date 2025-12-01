@@ -32,6 +32,10 @@
    benchmarks. */
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 9)
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 58888
+#endif
+
 #define NUM_NODES                          10
 #define NONE                               9999
 
@@ -238,13 +242,15 @@ initialise_benchmark_dijkstra (void)
 int dijkstra_bench() {
    int i,j;
 
-   output_count = 0;
+   for (int repeat = 0; repeat < BENCHMARK_REPEAT; repeat++) {
+      output_count = 0;
 
-   /* finds 10 shortest paths between nodes */
-   for(j = 0; j < NUM_NODES; j++) {
-      for (i=0; i < NUM_NODES; i++) {
-         output[output_count] = dijkstra(i,j);
-         output_count++;
+      /* finds 10 shortest paths between nodes */
+      for(j = 0; j < NUM_NODES; j++) {
+         for (i=0; i < NUM_NODES; i++) {
+            output[output_count] = dijkstra(i,j);
+            output_count++;
+         }
       }
    }
 

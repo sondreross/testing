@@ -28,6 +28,10 @@
    benchmarks. */
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 0)
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 100000
+#endif
+
 #define LOOPS 1
 
 
@@ -293,7 +297,9 @@ fir (void)
 {
   long  output[OUTSIZE];
 
-  fir_filter_int(in_data,output,700,fir_int,35,285);
+  for (int i = 0; i < BENCHMARK_REPEAT; i++) {
+    fir_filter_int(in_data,output,700,fir_int,35,285);
+  }
   return 0;
 }
 

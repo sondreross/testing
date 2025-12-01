@@ -25,6 +25,10 @@
    benchmarks. */
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 5)
 
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 58888
+#endif
+
 #include <stdlib.h>
 
 #ifdef __TURBOC__
@@ -193,8 +197,10 @@ initialise_benchmark_crc32 (void)
 
 int crc32()
 {
-  DWORD r;
-  r = crc32pseudo();
+  DWORD r = 0;
+  for (int i = 0; i < BENCHMARK_REPEAT; i++) {
+    r = crc32pseudo();
+  }
   return (int)r;
 }
 

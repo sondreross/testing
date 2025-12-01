@@ -49,6 +49,11 @@
 #include "../../support.h"
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
+
+#ifndef BENCHMARK_REPEAT
+#define BENCHMARK_REPEAT 100000
+#endif
+
 #ifdef MATMULT_FLOAT
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 5)
 #define UPPERLIMIT 10
@@ -118,7 +123,9 @@ int RandomInteger(void);
 
 int matmult()
 {
-   Test(ArrayA, ArrayB, ResultArray);
+   for (int i = 0; i < BENCHMARK_REPEAT; i++) {
+      Test(ArrayA, ArrayB, ResultArray);
+   }
 
    return 0;
 }
