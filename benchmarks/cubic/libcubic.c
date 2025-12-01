@@ -29,7 +29,7 @@
 #include "snipmath.h"
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 58888
+#define BENCHMARK_REPEAT 5000000
 #endif
 
 void SolveCubic(double  a,
