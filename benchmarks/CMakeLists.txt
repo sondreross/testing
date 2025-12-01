@@ -84,6 +84,7 @@ add_custom_target(copy_objects ALL
     COMMAND ${CMAKE_COMMAND} -E echo "Copying object files to ${BUILD_DIR}"
     COMMAND ${CMAKE_COMMAND} -E make_directory ${BUILD_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/crc32_obj.dir/crc32/crc_32.c.o ${BUILD_DIR}/crc_32.o
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/cubic_obj.dir/cubic/libcubic.c.o ${BUILD_DIR}/libcubic.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/cubic_obj.dir/cubic/basicmath_small.c.o ${BUILD_DIR}/basicmath_small.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/dijkstra_obj.dir/dijkstra/dijkstra_small.c.o ${BUILD_DIR}/dijkstra_small.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/fdct_obj.dir/fdct/libfdct.c.o ${BUILD_DIR}/libfdct.o

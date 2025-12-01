@@ -11,6 +11,7 @@ set(BENCHMARK_OBJS
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/crc_32.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libcubic.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/basicmath_small.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/basicmath_small.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/dijkstra_small.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libfdct.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libfir.o
