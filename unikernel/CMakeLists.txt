@@ -14,7 +14,8 @@ set(BENCHMARK_OBJS
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/dijkstra_small.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libfdct.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/libfir.o
-    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/matmult.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/matmult_float.o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/matmult_int.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/nettle-sha256.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/aesxam.o
     ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/benchmarks-build/aes.o

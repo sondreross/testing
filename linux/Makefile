@@ -8,7 +8,8 @@ BENCHMARK_OBJS = ../benchmarks/benchmarks-build/crc_32.o \
                  ../benchmarks/benchmarks-build/dijkstra_small.o \
                  ../benchmarks/benchmarks-build/libfdct.o \
                  ../benchmarks/benchmarks-build/libfir.o \
-                 ../benchmarks/benchmarks-build/matmult.o \
+                 ../benchmarks/benchmarks-build/matmult_float.o \
+                 ../benchmarks/benchmarks-build/matmult_int.o \
                  ../benchmarks/benchmarks-build/nettle-sha256.o \
                  ../benchmarks/benchmarks-build/aesxam.o \
                  ../benchmarks/benchmarks-build/aes.o

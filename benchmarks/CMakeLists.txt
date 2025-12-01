@@ -46,14 +46,6 @@ set_target_properties(fir_obj PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${BUILD_DIR}
 )
 
-# Matmult
-add_library(matmult_obj OBJECT matmult/matmult.c)
-target_compile_definitions(matmult_obj PRIVATE MATMULT_INT)
-set_target_properties(matmult_obj PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DIR}
-    LIBRARY_OUTPUT_DIRECTORY ${BUILD_DIR}
-)
-
 # Matmult-float
 add_library(matmult_float_obj OBJECT matmult-float/matmult.c)
 target_compile_definitions(matmult_float_obj PRIVATE MATMULT_FLOAT)
@@ -87,7 +79,7 @@ set_target_properties(rijndael_obj PROPERTIES
 # Custom target to copy object files after they are built
 add_custom_target(copy_objects ALL
     DEPENDS crc32_obj cubic_obj dijkstra_obj fdct_obj fir_obj 
-            matmult_obj matmult_float_obj matmult_int_obj 
+            matmult_float_obj matmult_int_obj 
             nettle_sha256_obj rijndael_obj
     COMMAND ${CMAKE_COMMAND} -E echo "Copying object files to ${BUILD_DIR}"
     COMMAND ${CMAKE_COMMAND} -E make_directory ${BUILD_DIR}
@@ -97,7 +89,6 @@ add_custom_target(copy_objects ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/dijkstra_obj.dir/dijkstra/dijkstra_small.c.o ${BUILD_DIR}/dijkstra_small.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/fdct_obj.dir/fdct/libfdct.c.o ${BUILD_DIR}/libfdct.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/fir_obj.dir/fir/libfir.c.o ${BUILD_DIR}/libfir.o
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/matmult_obj.dir/matmult/matmult.c.o ${BUILD_DIR}/matmult.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/matmult_float_obj.dir/matmult-float/matmult.c.o ${BUILD_DIR}/matmult_float.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/matmult_int_obj.dir/matmult-int/matmult.c.o ${BUILD_DIR}/matmult_int.o
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/nettle_sha256_obj.dir/nettle-sha256/nettle-sha256.c.o ${BUILD_DIR}/nettle-sha256.o

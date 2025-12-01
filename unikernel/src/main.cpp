@@ -14,7 +14,8 @@ extern "C" {
 #include "../../benchmarks/dijkstra/dijkstra.h"
 #include "../../benchmarks/fdct/fdct.h"
 #include "../../benchmarks/fir/fir.h"
-#include "../../benchmarks/matmult/matmult.h"
+#include "../../benchmarks/matmult-float/matmult_float.h"
+#include "../../benchmarks/matmult-int/matmult_int.h"
 #include "../../benchmarks/nettle-sha256/nettle_sha256.h"
 #include "../../benchmarks/rijndael/rijndael.h"
 }
@@ -30,7 +31,8 @@ void cubic_wrapper() { (void)cubic(); }
 void dijkstra_wrapper() { (void)dijkstra_bench(); }
 void fdct_wrapper() { (void)fdct_bench(); }
 void fir_wrapper() { (void)fir(); }
-void matmult_wrapper() { (void)matmult(); }
+void matmult_float_wrapper() { (void)matmult_float(); }
+void matmult_int_wrapper() { (void)matmult_int(); }
 void nettle_sha256_wrapper() { (void)nettle_sha256_bench(); }
 void rijndael_wrapper() { (void)rijndael(); }
 
@@ -46,7 +48,8 @@ Benchmark benchmarks[] = {
     {"dijkstra", initialise_benchmark_dijkstra, dijkstra_wrapper},
     {"fdct", initialise_benchmark_fdct, fdct_wrapper},
     {"fir", initialise_benchmark_fir, fir_wrapper},
-    {"matmult", initialise_benchmark_matmult, matmult_wrapper},
+    {"matmult-float", initialise_benchmark_matmult_float, matmult_float_wrapper},
+    {"matmult-int", initialise_benchmark_matmult_int, matmult_int_wrapper},
     {"nettle-sha256", initialise_benchmark_nettle_sha256, nettle_sha256_wrapper},
     {"rijndael", initialise_benchmark_rijndael, rijndael_wrapper}
 };
@@ -68,7 +71,7 @@ void Service::start(const std::string&){
   // Print CSV header matching Linux format
   printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-  const int repetitions = 1;
+  const int repetitions = 50;
   
   // Run each benchmark
   for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {

@@ -14,7 +14,8 @@ extern "C" {
 #include "../benchmarks/dijkstra/dijkstra.h"
 #include "../benchmarks/fdct/fdct.h"
 #include "../benchmarks/fir/fir.h"
-#include "../benchmarks/matmult/matmult.h"
+#include "../benchmarks/matmult-float/matmult_float.h"
+#include "../benchmarks/matmult-int/matmult_int.h"
 #include "../benchmarks/nettle-sha256/nettle_sha256.h"
 #include "../benchmarks/rijndael/rijndael.h"
 }
@@ -127,7 +128,8 @@ Benchmark benchmarks[] = {
     {"dijkstra", initialise_benchmark_dijkstra, dijkstra_bench, get_benchmark_name_dijkstra},
     {"fdct", initialise_benchmark_fdct, fdct_bench, get_benchmark_name_fdct},
     {"fir", initialise_benchmark_fir, fir, get_benchmark_name_fir},
-    {"matmult", initialise_benchmark_matmult, matmult, get_benchmark_name_matmult},
+    {"matmult-float", initialise_benchmark_matmult_float, matmult_float, get_benchmark_name_matmult_float},
+    {"matmult-int", initialise_benchmark_matmult_int, matmult_int, get_benchmark_name_matmult_int},
     {"nettle-sha256", initialise_benchmark_nettle_sha256, nettle_sha256_bench, NULL},
     {"rijndael", initialise_benchmark_rijndael, rijndael, get_benchmark_name_rijndael}
 };
@@ -142,7 +144,7 @@ int main() {
     // Print CSV header (no wall-clock time columns)
     printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-    const int repetitions = 1;
+    const int repetitions = 50;
     
     // Run each benchmark
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
