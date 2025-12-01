@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
+#include <thread>
 #include <arch/x86/cpu.hpp>
 #include "../../support.h"
 
@@ -79,8 +81,8 @@ void wait_for_cooldown(double target_temp) {
         current_temp = tj_max - digital_readout;
         
         if (current_temp > target_temp) {
-            // Sleep for 1 second to avoid heating CPU
-            os::sleep(1000); // 1000ms
+            // Sleep for 50 milliseconds to allow CPU to cool
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     } while (current_temp > target_temp);
 }
