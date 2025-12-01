@@ -27,27 +27,27 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 13)
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 1
+#define BENCHMARK_REPEAT 100000
 #endif
 
 
 /* This benchmark does not support verification */
 
 int
-verify_benchmark_cubic2 (int res __attribute ((unused)) )
+verify_benchmark_cubic (int res __attribute ((unused)) )
 {
   return -1;
 }
 
 
 void
-initialise_benchmark_cubic2 (void)
+initialise_benchmark_cubic (void)
 {
 }
 
 
 
-int cubic2(void)
+int cubic(void)
 {
    double  a1 = 1.0, b1 = -10.5, c1 = 32.0, d1 = -30.0;
    double  a2 = 1.0, b2 = -4.5, c2 = 17.0, d2 = -30.0;
@@ -84,6 +84,6 @@ int cubic2(void)
 
 /* vim: set ts=3 sw=3 et: */
 
-char* get_benchmark_name_cubic2(void) {
-    return "cubic2";
+char* get_benchmark_name_cubic(void) {
+    return "cubic";
 }

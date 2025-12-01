@@ -69,30 +69,4 @@ void SolveCubic(double  a,
 
 #endif /* TEST */
 
-int cubic()
-{
-  double  a1 = 1.0, b1 = -10.5, c1 = 32.0, d1 = -30.0;
-  double  x[3];
-  int     solutions;
-
-  for (int i = 0; i < BENCHMARK_REPEAT; i++) {
-    SolveCubic(a1, b1, c1, d1, &solutions, x);
-  }
-
-  return 0;
-}
-
-void initialise_benchmark_cubic(void)
-{
-}
-
-int verify_benchmark_cubic(int unused)
-{
-  return -1;
-}
-
 /* vim: set ts=3 sw=3 et: */
-
-char* get_benchmark_name_cubic(void) {
-    return "cubic";
-}
