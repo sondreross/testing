@@ -110,6 +110,17 @@ double read_pkg_temp(int cpu) {
     return temp;
 }
 
+// Wait for package temperature to cool down
+void wait_for_cooldown(int cpu, double target_temp) {
+    double current_temp;
+    do {
+        current_temp = read_pkg_temp(cpu);
+        if (current_temp > target_temp) {
+            sleep(1); // Sleep for 1 second to avoid heating CPU
+        }
+    } while (current_temp > target_temp);
+}
+
 // Array of benchmark functions
 typedef int (*benchmark_func_t)(void);
 typedef void (*init_func_t)(void);
@@ -149,6 +160,9 @@ int main() {
     // Run each benchmark
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
         for (int rep = 0; rep < repetitions; rep++) {
+            // Wait for package temperature to be under 45 degrees
+            wait_for_cooldown(cpu, 45.0);
+            
             benchmarks[b].init();
 
         // Read temperature, energy and timestamp before

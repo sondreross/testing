@@ -67,6 +67,24 @@ bool check_rapl_support() {
   }
 }
 
+// Wait for package temperature to cool down
+void wait_for_cooldown(double target_temp) {
+    double current_temp;
+    do {
+        // Read package thermal status
+        uint64_t temp_target = x86::CPU::read_msr(MSR_TEMPERATURE_TARGET);
+        uint32_t tj_max = (temp_target >> 16) & 0xFF;
+        uint64_t pkg_therm_status = x86::CPU::read_msr(IA32_PACKAGE_THERM_STATUS);
+        uint32_t digital_readout = (pkg_therm_status >> 16) & 0x7F;
+        current_temp = tj_max - digital_readout;
+        
+        if (current_temp > target_temp) {
+            // Sleep for 1 second to avoid heating CPU
+            os::sleep(1000); // 1000ms
+        }
+    } while (current_temp > target_temp);
+}
+
 void Service::start(const std::string&){
   // Print CSV header matching Linux format
   printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
@@ -76,6 +94,9 @@ void Service::start(const std::string&){
   // Run each benchmark
   for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
     for (int i = 0; i < repetitions; ++i) {
+      // Wait for package temperature to be under 45 degrees
+      wait_for_cooldown(45.0);
+      
       benchmarks[b].init();
       auto result = energy_bench::bench_function(
         benchmarks[b].func,
