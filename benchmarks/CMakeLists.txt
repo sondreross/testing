@@ -19,7 +19,7 @@ set_target_properties(crc32_obj PROPERTIES
 )
 
 # Cubic
-add_library(cubic_obj OBJECT cubic/libcubic.c cubic/basicmath_small.c)
+add_library(cubic_obj OBJECT cubic/libcubic.c cubic/basicmath_small.c snipmath.h)
 set_target_properties(cubic_obj PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${BUILD_DIR}
