@@ -3,7 +3,6 @@ CXXFLAGS = -O3 -DNDEBUG -g -fstack-protector-strong -fno-omit-frame-pointer -fno
 TARGET = bench_linux
 SOURCE = bench_linux.cpp
 BENCHMARK_OBJS = ../benchmarks/benchmarks-build/crc_32.o \
-                 ../benchmarks/benchmarks-build/libcubic.o \
                  ../benchmarks/benchmarks-build/basicmath_small.o \
                  ../benchmarks/benchmarks-build/dijkstra_small.o \
                  ../benchmarks/benchmarks-build/libfdct.o \
