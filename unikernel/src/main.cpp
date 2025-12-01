@@ -70,7 +70,10 @@ bool check_rapl_support() {
 }
 
 // Wait for package temperature to cool down
-void wait_for_cooldown(double target_temp) {
+// Returns the time waited in milliseconds
+double wait_for_cooldown(double target_temp) {
+    auto start_time = std::chrono::steady_clock::now();
+    
     double current_temp;
     do {
         // Read package thermal status
@@ -85,11 +88,15 @@ void wait_for_cooldown(double target_temp) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     } while (current_temp > target_temp);
+    
+    auto end_time = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    return static_cast<double>(elapsed.count());
 }
 
 void Service::start(const std::string&){
   // Print CSV header matching Linux format
-  printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+  printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
   const int repetitions = 1;
   
@@ -97,7 +104,7 @@ void Service::start(const std::string&){
   for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
     for (int i = 0; i < repetitions; ++i) {
       // Wait for package temperature to be under 45 degrees
-      wait_for_cooldown(45.0);
+      double cooldown_ms = wait_for_cooldown(45.0);
       
       benchmarks[b].init();
       auto result = energy_bench::bench_function(
@@ -116,13 +123,14 @@ void Service::start(const std::string&){
       double total_joules = result.total_joules();
 
       // Print CSV row matching Linux format
-      printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
+      printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
         benchmarks[b].name,
         (unsigned long long)result.cycles_elapsed,
         (unsigned long long)result.cycles_start,
         (unsigned long long)result.cycles_end,
         time_ns,
         time_ms,
+        cooldown_ms,
         temp_before,
         temp_after,
         pkg_temp_before,

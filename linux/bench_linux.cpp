@@ -111,7 +111,11 @@ double read_pkg_temp(int cpu) {
 }
 
 // Wait for package temperature to cool down
-void wait_for_cooldown(int cpu, double target_temp) {
+// Returns the time waited in milliseconds
+double wait_for_cooldown(int cpu, double target_temp) {
+    struct timespec start_time, current_time;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    
     double current_temp;
     do {
         current_temp = read_pkg_temp(cpu);
@@ -121,6 +125,11 @@ void wait_for_cooldown(int cpu, double target_temp) {
             nanosleep(&req, NULL);
         }
     } while (current_temp > target_temp);
+    
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
+    double elapsed_ns = (current_time.tv_sec - start_time.tv_sec) * 1e9 + 
+                       (current_time.tv_nsec - start_time.tv_nsec);
+    return elapsed_ns / 1e6; // Convert to milliseconds
 }
 
 // Array of benchmark functions
@@ -155,7 +164,7 @@ int main() {
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
     // Print CSV header (no wall-clock time columns)
-    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
     const int repetitions = 30;
     
@@ -163,7 +172,7 @@ int main() {
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
         for (int rep = 0; rep < repetitions; rep++) {
             // Wait for package temperature to be under 45 degrees
-            wait_for_cooldown(cpu, 45.0);
+            double cooldown_ms = wait_for_cooldown(cpu, 45.0);
             
             benchmarks[b].init();
 
@@ -205,13 +214,14 @@ int main() {
         double pkg_joules = energy_delta * energy_unit;
         
             // Print CSV row (PKG only, no DRAM)
-            printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
+            printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
                 benchmarks[b].name,
                 (unsigned long long)cycles_elapsed,
                 (unsigned long long)cycles_start,
                 (unsigned long long)cycles_end,
                 time_ns,
                 time_ms,
+                cooldown_ms,
                 temp_before,
                 temp_after,
                 pkg_temp_before,
