@@ -84,8 +84,8 @@ double wait_for_cooldown(double target_temp) {
         current_temp = tj_max - digital_readout;
         
         if (current_temp > target_temp) {
-            // Sleep for 50 milliseconds to allow CPU to cool
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            // Sleep for 10 milliseconds to allow CPU to cool
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     } while (current_temp > target_temp);
     
@@ -98,7 +98,7 @@ void Service::start(const std::string&){
   // Print CSV header matching Linux format
   printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-  const int repetitions = 1;
+  const int repetitions = 50;
   
   // Run each benchmark
   for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {

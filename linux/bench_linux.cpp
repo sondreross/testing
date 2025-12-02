@@ -120,8 +120,8 @@ double wait_for_cooldown(int cpu, double target_temp) {
     do {
         current_temp = read_pkg_temp(cpu);
         if (current_temp > target_temp) {
-            // Sleep for 50 milliseconds to avoid heating CPU
-            struct timespec req = {0, 50 * 1000 * 1000}; // 50 ms
+            // Sleep for 10 milliseconds to avoid heating CPU
+            struct timespec req = {0, 10 * 1000 * 1000}; // 10 ms
             nanosleep(&req, NULL);
         }
     } while (current_temp > target_temp);
@@ -166,7 +166,7 @@ int main() {
     // Print CSV header (no wall-clock time columns)
     printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
 
-    const int repetitions = 30;
+    const int repetitions = 50;
     
     // Run each benchmark
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
