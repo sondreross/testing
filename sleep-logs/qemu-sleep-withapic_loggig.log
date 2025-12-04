@@ -1,0 +1,466 @@
+Looking for chainloader: 
+Found /nix/store/xrywwjr0m18wvq01smgsfilw3b2csxz1-chainloader-static-i686-unknown-linux-musl-dev/bin/chainloader Type:  /nix/store/xrywwjr0m18wvq01smgsfilw3b2csxz1-chainloader-static-i686-unknown-linux-musl-dev/bin/chainloader: ELF 32-bit LSB executable, Intel i386, version 1 (SYSV), statically linked, stripped
+
+SeaBIOS (version rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org)
+
+
+iPXE (http://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FD0D90+06F30D90 CA00
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...
+
+
+Booting from ROM..* Multiboot begin: 0x9500
+* Multiboot cmdline @ 0x24a031: /nix/store/xrywwjr0m18wvq01smgsfilw3b2csxz1-chainloader-static-i686-unknown-linux-musl-dev/bin/chainloader ""
+* Multiboot end: 0x24a09f
+* Module list @ 0x24a000
+	 * Module @ 0x24b000
+	 * Args: build/hello_includeos.elf.bin ""
+ 	 * End: 0x3e5198
+ * Multiboot end: 0x3e5198
+* ELF syms header CRC OK
+<Multiboot>Booted with multiboot
+	* Boot flags: 0x24f
+	* Valid memory (130559 Kib):
+	  0x00000000 - 0x0009fbff (639 Kib)
+	  0x00100000 - 0x07fdffff (129920 Kib)
+
+	* Booted with parameters @ 0x24a031: /nix/store/xrywwjr0m18wvq01smgsfilw3b2csxz1-chainloader-static-i686-unknown-linux-musl-dev/bin/chainloader ""
+	* Multiboot provided memory map  (7 entries @ 0x9000)
+	  0x0000000000 - 0x000009fbff FREE (639 Kb.)
+	  0x000009fc00 - 0x000009ffff RESERVED (1 Kb.)
+	  0x00000f0000 - 0x00000fffff RESERVED (64 Kb.)
+	  0x0000100000 - 0x0007fdffff FREE (129920 Kb.)
+	  0x0007fe0000 - 0x0007ffffff RESERVED (128 Kb.)
+	  0x00fffc0000 - 0x00ffffffff RESERVED (256 Kb.)
+	  0x0000000000 - 0x00ffffffff RESERVED (0 Kb.)
+
+<Multiboot>OS loaded with 1 modules
+	* build/hello_includeos.elf.bin "" @ 0x24b000 - 0x3e5198, size: 1679768b
+* Multiboot begin: 0x9500
+* Multiboot end: 0x331d10
+[x86_64 PC] constructor
+[ Machine ] Initializing heap
+[ Machine ] Main memory detected as 130735936 b
+[ Machine ] Reserving 1048576 b for machine use
+================================================================================
+
+                           #include<os> // Literally
+
+================================================================================
+     [ Kernel ] Stack: 0x1ffbb8
+     [ Kernel ] Boot magic: 0x2badb002, addr: 0x9500
+     [ x86_64 ] Initializing paging
+                * Supported page sizes: 4.000_KiB, 2.000_MiB
+                * Adding 512 1GiB entries @ 0x0 -> 0x8000000000
+                * Identity mapping 0 -> 0, size 16.000_GiB, flags 0x83 (8192 pages á 2.000_MiB)
+                * Marking page 0 as not present
+                * Allowing execute on 0x201000 -> 0x2cf500
+                * Passing page tables to CPU
+<Multiboot>Booted with multiboot
+	* Boot flags: 0x24f
+	* Valid memory (130559 Kib):
+	  0x00000000 - 0x0009fbff (639 Kib)
+	  0x00100000 - 0x07fdffff (129920 Kib)
+
+	* Booted with parameters @ 0x8000: build/hello_includeos.elf.bin ""
+	* Multiboot provided memory map  (7 entries @ 0x9000)
+	  0x0000000000 - 0x000009fbff FREE (639 Kb.)
+	  0x000009fc00 - 0x000009ffff RESERVED (1 Kb.)
+	  0x00000f0000 - 0x00000fffff RESERVED (64 Kb.)
+	  0x0000100000 - 0x0007fdffff FREE (129920 Kb.)
+	  0x0007fe0000 - 0x0007ffffff RESERVED (128 Kb.)
+	  0x00fffc0000 - 0x00ffffffff RESERVED (256 Kb.)
+	  0xfd00000000 - 0xffffffffff RESERVED (12582912 Kb.)
+
+     [ Kernel ] Total memory detected as 95.645_MiB
+                Assigning fixed memory ranges (Memory map)
+                * ELF symbol table size 0, ignoring.
+                * Assigning heap 0x333000 -> 0x5fa4fff
+     [ Kernel ] Virtual memory map
+                0x0000001000 - 0x0000007fff,  28.000_KiB (100.0 %) Page tables
+                0x0000010000 - 0x000009abff, 555.000_KiB (100.0 %) Stack
+                0x000009fc00 - 0x000009ffff,   1.000_KiB (100.0 %) Reserved (Multiboot)
+                0x00000f0000 - 0x00000fffff,  64.000_KiB (100.0 %) Reserved (Multiboot)
+                0x0000201000 - 0x00002cffff, 828.000_KiB (100.0 %) ELF .text
+                0x0000333000 - 0x0005fa4fff,  92.445_MiB (0.651 %) Dynamic memory
+                0x0007fe0000 - 0x0007ffffff, 128.000_KiB (100.0 %) Reserved (Multiboot)
+                0x00fffc0000 - 0x00ffffffff, 256.000_KiB (100.0 %) Reserved (Multiboot)
+                0xfd00000000 - 0xffffffffff,  12.000_GiB (100.0 %) Reserved (Multiboot)
+       [ ACPI ] Reading headers
+                OEM: BOCHS  Rev. 0
+       [ ACPI ] Reading APIC information
+                LAPIC base: 0xfee00000  (flags: 0x1)
+                I/O APIC 0   ADDR 0xfec00000  INTR 0x0
+                IRQ redirect for bus 0 from IRQ 0 to VEC 2
+                IRQ redirect for bus 0 from IRQ 5 to VEC 5
+                IRQ redirect for bus 0 from IRQ 9 to VEC 9
+                IRQ redirect for bus 0 from IRQ 10 to VEC 10
+                IRQ redirect for bus 0 from IRQ 11 to VEC 11
+        [ SMP ] Found 1 APs
+     [ SMBIOS ] Version 2.8
+                BIOS vendor: rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org
+                BIOS version: 04/01/2014
+                Manufacturer: Standard PC (i440FX + PIIX, 1996)
+                Product name: pc-i440fx-9.2
+                System UUID: 00000000000000000000000000000000
+                Physical memory array with 128 MB capacity
+        [ x86 ] Setting up GDT, TLS, IST
+        [ x86 ] Initializing CPU 0
+   [ I/O APIC ] Initializing ID=0
+                Addr: 0xfec00000  Version: 0x20  Intr: 0  Entries: 24
+      [ xAPIC ] Enabling xAPIC
+                ID: 0  Ver: 50014
+        [ x86 ] Enabling interrupts
+        [ x86 ] Setting up kernel clock sources
+       [ CMOS ] Enabling regular clock sync for CMOS clock
+        [ x86 ] CMOS clock initialized
+       [ CMOS ] Estimating CPU-frequency
+                |
+                +--(18 samples, 0.000100 sec. interval)
+                |
+                Enabled redirected entry 2 ioapic 0 -> 0 on apic 0
+                +--> 4690.446335 MHz
+       [ APIC ] Measuring APIC timer...
+                Initializing drivers
+[ PCI Manager ] Probing PCI bus
+                |
+                +--[ Bridge device, Intel (0x1237) ]
+                +--[ Bridge device, Intel (0x7000) ]
+                +--[ Storage controller, Intel (0x7010) ]
+                +--[ Bridge device, Intel (0x7113) ]
+                +--[ Display controller, Unknown vendor (0x1111) ]
+                +--[ Network controller, Intel (0x100e) ]
+                o
+                |- Initializing Storage controller
+                |--[ Storage controller, Intel (0x8086:0x7010) ]
+                |  +-x Driver not found
+                o
+                |- Initializing Network controller
+                |--[ Network controller, Intel, Ethernet (0x8086:0x100e) ]
+                |  +-x Driver not found
+                o
+    [ Machine ] Listing registered devices
+                |
+                o
+  [ SystemLog ] Initializing System Log
+                Created @ 0x1fffffff0000 (63 kB)
+                Data @ 0x1fffffff0028 (65496 bytes)
+     [ Kernel ] Initializing RNG
+     [ Kernel ] Initializing plugins
+     [ Kernel ] Running service constructors
+--------------------------------------------------------------------------------
+================================================================================
+ IncludeOS VERY_DIRTY (x86_64 / 64-bit)
+ +--> Running [ Hello world - OS included ]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ +--> WARNING: No good random source found: RDRAND/RDSEED instructions not available.
+ +-->        To make this warning fatal, re-compile with FOR_PRODUCTION=ON.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Args =
+Try giving the service less memory, eg. 10MB in vm.json
+Testing sleep for 10ms...
+* APIC timer: ticks 125ms: 31514337	 1mi: 252
+Sleep requested: 10ms
+Actual sleep duration: 12704 microseconds (12.704 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10252 microseconds (10.252 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10218 microseconds (10.218 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10201 microseconds (10.201 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10120 microseconds (10.120 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10139 microseconds (10.139 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10492 microseconds (10.492 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10500 microseconds (10.500 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10486 microseconds (10.486 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10514 microseconds (10.514 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10586 microseconds (10.586 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10500 microseconds (10.500 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10559 microseconds (10.559 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10492 microseconds (10.492 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10489 microseconds (10.489 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10499 microseconds (10.499 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10212 microseconds (10.212 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10232 microseconds (10.232 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10156 microseconds (10.156 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10489 microseconds (10.489 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10594 microseconds (10.594 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10494 microseconds (10.494 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10494 microseconds (10.494 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10493 microseconds (10.493 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10509 microseconds (10.509 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10432 microseconds (10.432 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10487 microseconds (10.487 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10218 microseconds (10.218 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10691 microseconds (10.691 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10645 microseconds (10.645 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10230 microseconds (10.230 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10555 microseconds (10.555 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10280 microseconds (10.280 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10498 microseconds (10.498 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10269 microseconds (10.269 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10235 microseconds (10.235 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10291 microseconds (10.291 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10125 microseconds (10.125 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10120 microseconds (10.120 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10120 microseconds (10.120 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10141 microseconds (10.141 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10497 microseconds (10.497 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10493 microseconds (10.493 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10232 microseconds (10.232 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10228 microseconds (10.228 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10233 microseconds (10.233 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10496 microseconds (10.496 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10235 microseconds (10.235 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10487 microseconds (10.487 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10578 microseconds (10.578 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10495 microseconds (10.495 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10489 microseconds (10.489 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10619 microseconds (10.619 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10222 microseconds (10.222 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10557 microseconds (10.557 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10497 microseconds (10.497 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10488 microseconds (10.488 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10490 microseconds (10.490 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10517 microseconds (10.517 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10490 microseconds (10.490 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10490 microseconds (10.490 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10492 microseconds (10.492 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10217 microseconds (10.217 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10493 microseconds (10.493 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10237 microseconds (10.237 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10490 microseconds (10.490 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10499 microseconds (10.499 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10237 microseconds (10.237 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10492 microseconds (10.492 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10493 microseconds (10.493 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10236 microseconds (10.236 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10491 microseconds (10.491 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10213 microseconds (10.213 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10205 microseconds (10.205 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10496 microseconds (10.496 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10492 microseconds (10.492 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10197 microseconds (10.197 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10538 microseconds (10.538 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10233 microseconds (10.233 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10498 microseconds (10.498 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10500 microseconds (10.500 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10255 microseconds (10.255 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10242 microseconds (10.242 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10496 microseconds (10.496 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10493 microseconds (10.493 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10495 microseconds (10.495 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10498 microseconds (10.498 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10503 microseconds (10.503 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10497 microseconds (10.497 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10566 microseconds (10.566 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10493 microseconds (10.493 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 10496 microseconds (10.496 ms)
+Service done. Shutting down...
+     [ Kernel ] Stopping service
+     [ Kernel ] Powering off
+
+[92m[ SUCCESS ] process exited[0m
+
