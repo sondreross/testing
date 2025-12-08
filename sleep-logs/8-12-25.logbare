@@ -1,0 +1,206 @@
+* Multiboot begin: 0x10000 
+* Multiboot end: 0x331d10 
+[x86_64 PC] constructor 
+[ Machine ] Initializing heap
+[ Machine ] Main memory detected as 533520192 b
+[ Machine ] Reserving 1048576 b for machine use 
+================================================================================
+
+                           #include<os> // Literally                            
+
+================================================================================
+     [ Kernel ] Stack: 0x1ffbb8
+     [ Kernel ] Boot magic: 0x2badb002, addr: 0x10000
+     [ x86_64 ] Initializing paging
+                * Supported page sizes: 4.000_KiB, 2.000_MiB
+                * Adding 512 1GiB entries @ 0x0 -> 0x8000000000
+                * Identity mapping 0 -> 0, size 16.000_GiB, flags 0x83 (8192 pages Ã¡ 2.000_MiB)
+                * Marking page 0 as not present
+                * Allowing execute on 0x201000 -> 0x2cf4a0
+                * Passing page tables to CPU
+<Multiboot>Booted with multiboot
+	* Boot flags: 0x1a67
+	* Valid memory (523883 Kib):
+	  0x00000000 - 0x0009abff (619 Kib)
+	  0x00100000 - 0x1fffffff (523264 Kib)
+	
+	* Booted with parameters @ 0x10078: 
+	* Multiboot provided memory map  (18 entries @ 0x10088)
+	  0x0000000000 - 0x000009abff FREE (619 Kb.)
+	  0x000009ac00 - 0x000009ffff RESERVED (21 Kb.)
+	  0x00000e0000 - 0x00000fffff RESERVED (128 Kb.)
+	  0x0000100000 - 0x001fffffff FREE (523264 Kb.)
+	  0x0020000000 - 0x00201fffff RESERVED (2048 Kb.)
+	  0x0020200000 - 0x003fffffff FREE (522240 Kb.)
+	  0x0040000000 - 0x00401fffff RESERVED (2048 Kb.)
+	  0x0040200000 - 0x00ca9f5fff FREE (2269144 Kb.)
+	  0x00ca9f6000 - 0x00caa39fff RESERVED (272 Kb.)
+	  0x00caa3a000 - 0x00cadb6fff FREE (3572 Kb.)
+	  0x00cadb7000 - 0x00cade6fff RESERVED (192 Kb.)
+	  0x00cade7000 - 0x00cafe6fff RESERVED (2048 Kb.)
+	  0x00cafe7000 - 0x00caffefff FREE (96 Kb.)
+	  0x00cafff000 - 0x00caffffff FREE (4 Kb.)
+	  0x00cb800000 - 0x00cf9fffff RESERVED (67584 Kb.)
+	  0x00fed1c000 - 0x00fed1ffff RESERVED (16 Kb.)
+	  0x00ffc00000 - 0x00ffc1ffff RESERVED (128 Kb.)
+	  0x0100000000 - 0x042dffffff FREE (13336576 Kb.)
+	
+     [ Kernel ] Total memory detected as 383.738_MiB 
+                Assigning fixed memory ranges (Memory map)
+                * ELF symbol table size 0, ignoring.
+                * Assigning heap 0x333000 -> 0x17fbcfff
+     [ Kernel ] Virtual memory map
+                0x0000001000 - 0x0000007fff,  28.000_KiB (100.0 %) Page tables              
+                0x0000010000 - 0x000009abff, 555.000_KiB (100.0 %) Stack                    
+                0x000009ac00 - 0x000009ffff,  21.000_KiB (100.0 %) Reserved (Multiboot)     
+                0x00000e0000 - 0x00000fffff, 128.000_KiB (100.0 %) Reserved (Multiboot)     
+                0x0000201000 - 0x00002cffff, 828.000_KiB (100.0 %) ELF .text                
+                0x0000333000 - 0x0017fbcfff, 380.539_MiB (0.126 %) Dynamic memory           
+                0x0020000000 - 0x00201fffff,   2.000_MiB (100.0 %) Reserved (Multiboot)     
+                0x0040000000 - 0x00401fffff,   2.000_MiB (100.0 %) Reserved (Multiboot)     
+                0x00ca9f6000 - 0x00caa39fff, 272.000_KiB (100.0 %) Reserved (Multiboot)     
+                0x00cadb7000 - 0x00cade6fff, 192.000_KiB (100.0 %) Reserved (Multiboot)     
+                0x00cade7000 - 0x00cafe6fff,   2.000_MiB (100.0 %) Reserved (Multiboot)     
+                0x00cb800000 - 0x00cf9fffff,  66.000_MiB (100.0 %) Reserved (Multiboot)     
+                0x00fed1c000 - 0x00fed1ffff,  16.000_KiB (100.0 %) Reserved (Multiboot)     
+                0x00ffc00000 - 0x00ffc1ffff, 128.000_KiB (100.0 %) Reserved (Multiboot)     
+       [ ACPI ] Reading headers
+                OEM: DELL   Rev. 2
+       [ ACPI ] Reading APIC information
+                LAPIC base: 0xfee00000  (flags: 0x1)
+                I/O APIC 2   ADDR 0xfec00000  INTR 0x0
+                IRQ redirect for bus 0 from IRQ 0 to VEC 2
+                IRQ redirect for bus 0 from IRQ 9 to VEC 9
+        [ SMP ] Found 16 APs
+     [ SMBIOS ] Version 2.6
+        [ x86 ] Setting up GDT, TLS, IST
+        [ x86 ] Initializing CPU 0
+   [ I/O APIC ] Initializing ID=2
+                Addr: 0xfec00000  Version: 0x20  Intr: 0  Entries: 24
+     [ x2APIC ] Enabling x2APIC @ 0xfee00900
+                APIC id: 0  ver: 1060015
+        [ x86 ] Enabling interrupts
+        [ x86 ] Setting up kernel clock sources
+       [ CMOS ] Enabling regular clock sync for CMOS clock
+        [ x86 ] CMOS clock initialized
+       [ CMOS ] Estimating CPU-frequency
+                |
+                +--(18 samples, 0.000100 sec. interval)
+                |
+                Enabled redirected entry 2 ioapic 0 -> 0 on apic 0
+                +--> 3092.873290 MHz
+       [ APIC ] Measuring APIC timer...
+       [ APIC ] Using RTC-based calibration (PIT unavailable)
+       [ APIC ] RTC-based calibration
+       [ APIC ] RTC elapsed: 125000192 ns, APIC elapsed: 3524489 ticks
+       [ APIC ] ticks_per_micro: 28
+                Initializing drivers
+[ PCI Manager ] Probing PCI bus
+                |
+                +--[ Bridge device, Intel (0x0100) ]
+                +--[ Display controller, Intel (0x0102) ]
+                +--[ Simple comm. controller , Intel (0x1c3a) ]
+                +--[ Network controller, Intel (0x1502) ]
+                +--[ Serial bus controller, Intel (0x1c2d) ]
+                +--[ Multimedia device, Intel (0x1c20) ]
+                +--[ Bridge device, Intel (0x1c10) ]
+                |
+                o
+                +--[ Bridge device, Intel (0x1c14) ]
+                |
+                o
+                +--[ Serial bus controller, Intel (0x1c26) ]
+                +--[ Bridge device, Intel (0x244e) ]
+                |
+                o
+                +--[ Bridge device, Intel (0x1c4c) ]
+                +--[ Storage controller, Intel (0x1c02) ]
+                +--[ Serial bus controller, Intel (0x1c22) ]
+                o
+                |- Initializing Storage controller
+                |--[ Storage controller, Intel (0x8086:0x1c02) ]
+                |  +-x Driver not found 
+                o
+                |- Initializing Network controller
+                |--[ Network controller, Intel, Ethernet (0x8086:0x1502) ]
+                |  +-x Driver not found 
+                o
+    [ Machine ] Listing registered devices
+                |
+                o
+  [ SystemLog ] Initializing System Log
+                Created @ 0x1fffffff0000 (63 kB)
+                Data @ 0x1fffffff0028 (65496 bytes)
+     [ Kernel ] Initializing RNG
+     [ Kernel ] Initializing plugins
+     [ Kernel ] Running service constructors
+--------------------------------------------------------------------------------
+================================================================================
+ IncludeOS VERY_DIRTY (x86_64 / 64-bit)
+ +--> Running [ Hello world - OS included ]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ +--> WARNING: No good random source found: RDRAND/RDSEED instructions not available.
+ +-->        To make this warning fatal, re-compile with FOR_PRODUCTION=ON.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Args = ú
+Try giving the service less memory, eg. 10MB in vm.json
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 16930336 microseconds (16930.336 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 20558 microseconds (20.558 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 57434479 microseconds (57434.479 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 26885 microseconds (26.885 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 11227 microseconds (11.227 ms)
+Testing sleep for 10ms...
+Sleep requested: 10ms
+Actual sleep duration: 33418 microseconds (33.418 ms)
