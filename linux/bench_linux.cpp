@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <cstring>
 #include <time.h>
+#include <sstream>
+#include <iomanip>
 #include "../support.h"
 
 // Include all benchmark headers
@@ -26,6 +28,9 @@ extern "C" {
 #define MSR_TEMPERATURE_TARGET 0x1A2
 #define IA32_THERM_STATUS      0x19C
 #define IA32_PACKAGE_THERM_STATUS 0x1B1
+
+// RAPL energy status mask (bits 31:0 contain the energy counter, bits 63:32 are reserved)
+#define RAPL_ENERGY_STATUS_MASK 0xFFFFFFFFULL
 
 // Read MSR value
 uint64_t read_msr(int cpu, uint32_t msr) {
@@ -163,8 +168,11 @@ int main() {
     uint64_t power_unit_raw = read_msr(cpu, MSR_RAPL_POWER_UNIT);
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
-    // Print CSV header (no wall-clock time columns)
-    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    // Buffer all output
+    std::ostringstream output;
+    
+    // CSV header matching unikernel format
+    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
 
     const int repetitions = 50;
     
@@ -176,63 +184,65 @@ int main() {
             
             benchmarks[b].init();
 
-        // Read temperature, energy and timestamp before
+            // Read temperature, energy and timestamp before
             struct timespec time_start, time_end;
             clock_gettime(CLOCK_MONOTONIC, &time_start);
             double temp_before = read_cpu_temp(cpu);
             double pkg_temp_before = read_pkg_temp(cpu);
-            uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
+            uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
             uint64_t cycles_start = rdtsc_begin();
             
             // Run benchmark
             benchmarks[b].func();
             
-        // Read energy, timestamp and temperature after
+            // Read energy, timestamp and temperature after
             uint64_t cycles_end = rdtsc_end();
-            uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS);
+            uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
             double temp_after = read_cpu_temp(cpu);
             double pkg_temp_after = read_pkg_temp(cpu);
             clock_gettime(CLOCK_MONOTONIC, &time_end);
         
-    // Calculate results
-    uint64_t cycles_elapsed = cycles_end - cycles_start;
+            // Calculate results
+            uint64_t cycles_elapsed = cycles_end - cycles_start;
         
-        // Calculate wall clock time
-        double time_ns = (time_end.tv_sec - time_start.tv_sec) * 1e9 + 
-                        (time_end.tv_nsec - time_start.tv_nsec);
-        double time_ms = time_ns / 1e6;
+            // Calculate wall clock time
+            double time_ns = (time_end.tv_sec - time_start.tv_sec) * 1e9 + 
+                            (time_end.tv_nsec - time_start.tv_nsec);
+            double time_ms = time_ns / 1e6;
 
-        // Handle energy counter wraparound (64-bit counter)
-        uint64_t energy_delta;
-        if (energy_after >= energy_before) {
-            energy_delta = energy_after - energy_before;
-        } else {
-            // Wraparound case (though unlikely with 64-bit counter)
-            energy_delta = (UINT64_MAX - energy_before) + energy_after + 1;
-        }
+            // Handle energy counter wraparound (64-bit counter)
+            uint32_t energy_delta;
+            if (energy_after >= energy_before) {
+                energy_delta = energy_after - energy_before;
+            } else {
+                // Wraparound case for 32-bit counter
+                energy_delta = (UINT32_MAX - energy_before) + energy_after + 1;
+            }
         
-        double pkg_joules = energy_delta * energy_unit;
+            double pkg_joules = energy_delta * energy_unit;
         
-            // Print CSV row (PKG only, no DRAM)
-            printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,,,%.6f,%.3f\n",
-                benchmarks[b].name,
-                (unsigned long long)cycles_elapsed,
-                (unsigned long long)cycles_start,
-                (unsigned long long)cycles_end,
-                time_ns,
-                time_ms,
-                cooldown_ms,
-                temp_before,
-                temp_after,
-                pkg_temp_before,
-                pkg_temp_after,
-                pkg_joules,
-                pkg_joules * 1000,
-                pkg_joules,  // total = pkg only
-                pkg_joules * 1000
-            );
+            // Buffer CSV row (PKG only, no DRAM)
+            output << benchmarks[b].name << ","
+                   << cycles_elapsed << ","
+                   << cycles_start << ","
+                   << cycles_end << ","
+                   << std::fixed << std::setprecision(3) << time_ns << ","
+                   << std::setprecision(6) << time_ms << ","
+                   << std::setprecision(3) << cooldown_ms << ","
+                   << std::setprecision(2) << temp_before << ","
+                   << temp_after << ","
+                   << pkg_temp_before << ","
+                   << pkg_temp_after << ","
+                   << std::setprecision(6) << pkg_joules << ","
+                   << std::setprecision(3) << (pkg_joules * 1000) << ","
+                   << ",,"  // empty dram_joules, dram_mJ
+                   << std::setprecision(6) << pkg_joules << ","
+                   << std::setprecision(3) << (pkg_joules * 1000) << "\n";
         }
     }
+    
+    // Print all buffered output at once
+    printf("%s", output.str().c_str());
     
     return 0;
 }

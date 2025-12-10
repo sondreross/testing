@@ -6,6 +6,8 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
+#include <sstream>
+#include <iomanip>
 #include <arch/x86/cpu.hpp>
 #include "../../support.h"
 
@@ -85,11 +87,7 @@ double wait_for_cooldown(double target_temp) {
         
         if (current_temp > target_temp) {
             // Sleep for 10 milliseconds to allow CPU to cool
-            auto sleep_start = std::chrono::steady_clock::now();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            auto sleep_end = std::chrono::steady_clock::now();
-            double slept_ms = std::chrono::duration<double, std::milli>(sleep_end - sleep_start).count();
-            printf("Slept for %.3f ms\n", slept_ms);
         }
     } while (current_temp > target_temp);
     
@@ -98,55 +96,60 @@ double wait_for_cooldown(double target_temp) {
     return static_cast<double>(elapsed.count());
 }
 
-void Service::start(const std::string&){
-  // Print CSV header matching Linux format
-  printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
-
-  const int repetitions = 50;
+void Service::start(const std::string&) {
+    // Buffer all output
+    std::ostringstream output;
   
-  // Run each benchmark
-  for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
-    for (int i = 0; i < repetitions; ++i) {
-      // Wait for package temperature to be under 45 degrees
-      double cooldown_ms = wait_for_cooldown(45.0);
+    // CSV header matching Linux format
+    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
+
+    const int repetitions = 50;
+  
+    // Run each benchmark
+    for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
+        for (int i = 0; i < repetitions; ++i) {
+            // Wait for package temperature to be under 45 degrees
+            double cooldown_ms = wait_for_cooldown(45.0);
       
-      benchmarks[b].init();
-      auto result = energy_bench::bench_function(
-        benchmarks[b].func,
-        energy_bench::PKG
-      );
+            benchmarks[b].init();
+            auto result = energy_bench::bench_function(
+                benchmarks[b].func,
+                energy_bench::PKG
+            );
 
-      double temp_before = result.therm_tcc - result.therm_start;
-      double temp_after = result.therm_tcc - result.therm_end;
-      double pkg_temp_before = result.therm_tcc - result.pkg_therm_start;
-      double pkg_temp_after = result.therm_tcc - result.pkg_therm_end;
-      double time_ns = result.nanos_elapsed;
-      double time_ms = time_ns / 1e6;
-      double pkg_joules = result.pkg_joules();
-      double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
-      double total_joules = result.total_joules();
+            double temp_before = result.therm_tcc - result.therm_start;
+            double temp_after = result.therm_tcc - result.therm_end;
+            double pkg_temp_before = result.therm_tcc - result.pkg_therm_start;
+            double pkg_temp_after = result.therm_tcc - result.pkg_therm_end;
+            double time_ns = result.nanos_elapsed;
+            double time_ms = time_ns / 1e6;
+            double pkg_joules = result.pkg_joules();
+            double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
+            double total_joules = result.total_joules();
 
-      // Print CSV row matching Linux format
-      printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f\n",
-        benchmarks[b].name,
-        (unsigned long long)result.cycles_elapsed,
-        (unsigned long long)result.cycles_start,
-        (unsigned long long)result.cycles_end,
-        time_ns,
-        time_ms,
-        cooldown_ms,
-        temp_before,
-        temp_after,
-        pkg_temp_before,
-        pkg_temp_after,
-        pkg_joules,
-        pkg_joules * 1000,
-        dram_joules,
-        dram_joules * 1000,
-        total_joules,
-        total_joules * 1000
-      );
+            // Buffer CSV row matching Linux format
+            output << benchmarks[b].name << ","
+                   << result.cycles_elapsed << ","
+                   << result.cycles_start << ","
+                   << result.cycles_end << ","
+                   << std::fixed << std::setprecision(3) << time_ns << ","
+                   << std::setprecision(6) << time_ms << ","
+                   << std::setprecision(3) << cooldown_ms << ","
+                   << std::setprecision(2) << temp_before << ","
+                   << temp_after << ","
+                   << pkg_temp_before << ","
+                   << pkg_temp_after << ","
+                   << std::setprecision(6) << pkg_joules << ","
+                   << std::setprecision(3) << (pkg_joules * 1000) << ","
+                   << std::setprecision(6) << dram_joules << ","
+                   << std::setprecision(3) << (dram_joules * 1000) << ","
+                   << std::setprecision(6) << total_joules << ","
+                   << std::setprecision(3) << (total_joules * 1000) << "\n";
+        }
     }
-  }
-  os::shutdown();
+  
+    // Print all buffered output at once
+    printf("%s", output.str().c_str());
+  
+    os::shutdown();
 }
