@@ -26,7 +26,6 @@ check_param() {
     fi
 }
 
-check_param "isolcpus=$ISOLATED_CORE"
 check_param "nohz_full=$ISOLATED_CORE"
 check_param "rcu_nocbs=$ISOLATED_CORE"
 echo ""
