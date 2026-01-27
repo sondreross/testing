@@ -234,13 +234,23 @@ int main(int argc, char* argv[]) {
     uint64_t power_unit_raw = read_msr(cpu, MSR_RAPL_POWER_UNIT);
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
-    // Buffer all output
-    std::ostringstream output;
-    
-    // CSV header with PP0, PP1, and Package
-    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
+    // Print CSV header immediately
+    const char* csv_header = "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
+    printf("%s", csv_header);
+    fflush(stdout);
+    if (serial_fd >= 0) {
+        write_serial(serial_fd, csv_header);
+    }
 
     const int repetitions = 50;
+    
+    benchmarks[0].init();
+    // Warmup: Run first benchmark until CPU reaches target temperature (45°C)
+    double current_temp = read_pkg_temp(cpu);
+    while (current_temp < 45.0) {
+        benchmarks[0].func();
+        current_temp = read_pkg_temp(cpu);
+    }
     
     // Run each benchmark
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
@@ -316,38 +326,41 @@ int main(int argc, char* argv[]) {
             }
             double pp1_joules = pp1_energy_delta * energy_unit;
         
-            // Buffer CSV row with Package, PP0, and PP1
-            output << benchmarks[b].name << ","
-                   << cycles_elapsed << ","
-                   << cycles_start << ","
-                   << cycles_end << ","
-                   << std::fixed << std::setprecision(3) << time_ns << ","
-                   << std::setprecision(6) << time_ms << ","
-                   << std::setprecision(3) << cooldown_ms << ","
-                   << std::setprecision(2) << temp_before << ","
-                   << temp_after << ","
-                   << pkg_temp_before << ","
-                   << pkg_temp_after << ","
-                   << std::setprecision(6) << pkg_joules << ","
-                   << std::setprecision(3) << (pkg_joules * 1000) << ","
-                   << std::setprecision(6) << pp0_joules << ","
-                   << std::setprecision(3) << (pp0_joules * 1000) << ","
-                   << std::setprecision(6) << pp1_joules << ","
-                   << std::setprecision(3) << (pp1_joules * 1000) << ","
-                   << ",,"  // empty dram_joules, dram_mJ
-                   << std::setprecision(6) << pkg_joules << ","
-                   << std::setprecision(3) << (pkg_joules * 1000) << "\n";
+            // Print CSV row immediately
+            char csv_row[512];
+            snprintf(csv_row, sizeof(csv_row),
+                "%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,%.6f,%.3f\n",
+                benchmarks[b].name,
+                cycles_elapsed,
+                cycles_start,
+                cycles_end,
+                time_ns,
+                time_ms,
+                cooldown_ms,
+                temp_before,
+                temp_after,
+                pkg_temp_before,
+                pkg_temp_after,
+                pkg_joules,
+                pkg_joules * 1000,
+                pp0_joules,
+                pp0_joules * 1000,
+                pp1_joules,
+                pp1_joules * 1000,
+                pkg_joules,
+                pkg_joules * 1000);
+            
+            printf("%s", csv_row);
+            fflush(stdout);
+            if (serial_fd >= 0) {
+                write_serial(serial_fd, csv_row);
+            }
         }
     }
 
-    // Print all buffered output through serial port
     if (serial_fd >= 0) {
-        write_serial(serial_fd, output.str().c_str());
         close(serial_fd);
     }
-    
-    // Also print to stdout for debugging
-    printf("%s", output.str().c_str());
     
     return 0;
 }

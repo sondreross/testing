@@ -97,13 +97,25 @@ double wait_for_cooldown(double target_temp) {
 }
 
 void Service::start(const std::string&) {
-    // Buffer all output
-    std::ostringstream output;
-  
-    // CSV header matching Linux format
-    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
+    // Print CSV header immediately
+    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    fflush(stdout);
 
     const int repetitions = 50;
+    
+    // Warmup: Run first benchmark until CPU reaches target temperature (45°C)
+    benchmarks[0].init();
+    double current_temp = 0.0;
+    while (current_temp < 45.0) {
+        benchmarks[0].func();
+        
+        // Read current package temperature
+        uint64_t temp_target = x86::CPU::read_msr(MSR_TEMPERATURE_TARGET);
+        uint32_t tj_max = (temp_target >> 16) & 0xFF;
+        uint64_t pkg_therm_status = x86::CPU::read_msr(IA32_PACKAGE_THERM_STATUS);
+        uint32_t digital_readout = (pkg_therm_status >> 16) & 0x7F;
+        current_temp = tj_max - digital_readout;
+    }
   
     // Run each benchmark
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
@@ -132,36 +144,34 @@ void Service::start(const std::string&) {
             double pp1_joules = (result.measured_domains & energy_bench::PP1) ? result.pp1_joules() : 0.0;
             double total_joules = result.total_joules();
 
-            // Buffer CSV row matching Linux format
-            output << benchmarks[b].name << ","
-                   << result.cycles_elapsed << ","
-                   << result.cycles_start << ","
-                   << result.cycles_end << ","
-                   << std::fixed << std::setprecision(3) << time_ns << ","
-                   << std::setprecision(6) << time_ms << ","
-                   << std::setprecision(3) << cooldown_ms << ","
-                   << std::setprecision(2) << temp_before << ","
-                   << temp_after << ","
-                   << pkg_temp_before << ","
-                   << pkg_temp_after << ","
-                   << std::setprecision(6) << pkg_joules << ","
-                   << std::setprecision(3) << (pkg_joules * 1000) << ","
-                   << std::setprecision(6) << pp0_joules << ","
-                   << std::setprecision(3) << (pp0_joules * 1000) << ","
-                   << std::setprecision(6) << pp1_joules << ","
-                   << std::setprecision(3) << (pp1_joules * 1000) << ","
-                   << ",,"  // empty dram_joules, dram_mJ
-                   << std::setprecision(6) << total_joules << ","
-                   << std::setprecision(3) << (total_joules * 1000) << "\n";
+            // Print CSV row immediately
+            printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,%.6f,%.3f\n",
+                   benchmarks[b].name,
+                   result.cycles_elapsed,
+                   result.cycles_start,
+                   result.cycles_end,
+                   time_ns,
+                   time_ms,
+                   cooldown_ms,
+                   temp_before,
+                   temp_after,
+                   pkg_temp_before,
+                   pkg_temp_after,
+                   pkg_joules,
+                   pkg_joules * 1000,
+                   pp0_joules,
+                   pp0_joules * 1000,
+                   pp1_joules,
+                   pp1_joules * 1000,
+                   total_joules,
+                   total_joules * 1000);
+            fflush(stdout);
             
             // Send 0x1b marker at the end
             printf("\x1b%s,%d\n", benchmarks[b].name, i);
             fflush(stdout);
         }
     }
-  
-    // Print all buffered output at once
-    printf("%s", output.str().c_str());
   
     os::shutdown();
 }
