@@ -7,6 +7,7 @@
 #include <time.h>
 #include <sstream>
 #include <iomanip>
+#include <termios.h>
 #include "../support.h"
 
 // Include all benchmark headers
@@ -25,6 +26,8 @@ extern "C" {
 // MSR addresses
 #define MSR_RAPL_POWER_UNIT    0x606
 #define MSR_PKG_ENERGY_STATUS  0x611
+#define MSR_PP0_ENERGY_STATUS  0x639
+#define MSR_PP1_ENERGY_STATUS  0x641
 #define MSR_TEMPERATURE_TARGET 0x1A2
 #define IA32_THERM_STATUS      0x19C
 #define IA32_PACKAGE_THERM_STATUS 0x1B1
@@ -100,6 +103,58 @@ double read_cpu_temp(int cpu) {
     return temp;
 }
 
+// Open and configure serial port
+int open_serial_port(const char* port_name) {
+    int fd = open(port_name, O_RDWR | O_NOCTTY | O_SYNC);
+    if (fd < 0) {
+        perror("Error opening serial port");
+        return -1;
+    }
+    
+    struct termios options;
+    if (tcgetattr(fd, &options) < 0) {
+        perror("Error getting serial port attributes");
+        close(fd);
+        return -1;
+    }
+    
+    // Set baud rate to 38400
+    cfsetispeed(&options, B38400);
+    cfsetospeed(&options, B38400);
+    
+    // Configure: 8N1
+    options.c_cflag &= ~PARENB;
+    options.c_cflag &= ~CSTOPB;
+    options.c_cflag &= ~CSIZE;
+    options.c_cflag |= CS8;
+    options.c_cflag |= (CLOCAL | CREAD);
+    options.c_cflag &= ~CRTSCTS;
+    
+    // Raw mode
+    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    options.c_oflag &= ~OPOST;
+    options.c_iflag &= ~(IXON | IXOFF | IXANY);
+    
+    options.c_cc[VMIN] = 0;
+    options.c_cc[VTIME] = 10;
+    
+    if (tcsetattr(fd, TCSANOW, &options) < 0) {
+        perror("Error setting serial port attributes");
+        close(fd);
+        return -1;
+    }
+    
+    tcflush(fd, TCIOFLUSH);
+    return fd;
+}
+
+// Write string to serial port
+void write_serial(int fd, const char* str) {
+    if (fd >= 0) {
+        write(fd, str, strlen(str));
+    }
+}
+
 // Read package temperature
 double read_pkg_temp(int cpu) {
     // Read temperature target (TjMax)
@@ -161,8 +216,19 @@ Benchmark benchmarks[] = {
     {"rijndael", initialise_benchmark_rijndael, rijndael, get_benchmark_name_rijndael}
 };
 
-int main() {
+int main(int argc, char* argv[]) {
     const int cpu = 0; // Use CPU 0
+    
+    // Check for serial port argument
+    int serial_fd = -1;
+    if (argc > 1) {
+        serial_fd = open_serial_port(argv[1]);
+        if (serial_fd < 0) {
+            fprintf(stderr, "Failed to open serial port %s, continuing without serial output\n", argv[1]);
+        } else {
+            fprintf(stderr, "Opened serial port %s\n", argv[1]);
+        }
+    }
     
     // Get energy unit
     uint64_t power_unit_raw = read_msr(cpu, MSR_RAPL_POWER_UNIT);
@@ -171,25 +237,31 @@ int main() {
     // Buffer all output
     std::ostringstream output;
     
-    // CSV header matching unikernel format
-    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
+    // CSV header with PP0, PP1, and Package
+    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
 
     const int repetitions = 50;
     
     // Run each benchmark
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
         for (int rep = 0; rep < repetitions; rep++) {
+            // Send 0x1b start marker through serial port
+            char start_marker[128];
+            snprintf(start_marker, sizeof(start_marker), "\x1b%s,%d\n", benchmarks[b].name, rep);
+            write_serial(serial_fd, start_marker);
+            
             // Wait for package temperature to be under 45 degrees
             double cooldown_ms = wait_for_cooldown(cpu, 45.0);
             
             benchmarks[b].init();
-
             // Read temperature, energy and timestamp before
             struct timespec time_start, time_end;
             clock_gettime(CLOCK_MONOTONIC, &time_start);
             double temp_before = read_cpu_temp(cpu);
             double pkg_temp_before = read_pkg_temp(cpu);
-            uint64_t energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
+            uint64_t pkg_energy_before = read_msr(cpu, MSR_PKG_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
+            uint64_t pp0_energy_before = read_msr(cpu, MSR_PP0_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
+            uint64_t pp1_energy_before = read_msr(cpu, MSR_PP1_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
             uint64_t cycles_start = rdtsc_begin();
             
             // Run benchmark
@@ -197,7 +269,9 @@ int main() {
             
             // Read energy, timestamp and temperature after
             uint64_t cycles_end = rdtsc_end();
-            uint64_t energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
+            uint64_t pkg_energy_after = read_msr(cpu, MSR_PKG_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
+            uint64_t pp0_energy_after = read_msr(cpu, MSR_PP0_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
+            uint64_t pp1_energy_after = read_msr(cpu, MSR_PP1_ENERGY_STATUS) & RAPL_ENERGY_STATUS_MASK;
             double temp_after = read_cpu_temp(cpu);
             double pkg_temp_after = read_pkg_temp(cpu);
             clock_gettime(CLOCK_MONOTONIC, &time_end);
@@ -210,18 +284,39 @@ int main() {
                             (time_end.tv_nsec - time_start.tv_nsec);
             double time_ms = time_ns / 1e6;
 
-            // Handle energy counter wraparound (64-bit counter)
-            uint32_t energy_delta;
-            if (energy_after >= energy_before) {
-                energy_delta = energy_after - energy_before;
+            // Send 0x1b end marker through serial port
+            char end_marker[128];
+            snprintf(end_marker, sizeof(end_marker), "\x1b%s,%d\n", benchmarks[b].name, rep);
+            write_serial(serial_fd, end_marker);
+
+            // Handle energy counter wraparound for Package
+            uint32_t pkg_energy_delta;
+            if (pkg_energy_after >= pkg_energy_before) {
+                pkg_energy_delta = pkg_energy_after - pkg_energy_before;
             } else {
-                // Wraparound case for 32-bit counter
-                energy_delta = (UINT32_MAX - energy_before) + energy_after + 1;
+                pkg_energy_delta = (UINT32_MAX - pkg_energy_before) + pkg_energy_after + 1;
             }
+            double pkg_joules = pkg_energy_delta * energy_unit;
+            
+            // Handle energy counter wraparound for PP0
+            uint32_t pp0_energy_delta;
+            if (pp0_energy_after >= pp0_energy_before) {
+                pp0_energy_delta = pp0_energy_after - pp0_energy_before;
+            } else {
+                pp0_energy_delta = (UINT32_MAX - pp0_energy_before) + pp0_energy_after + 1;
+            }
+            double pp0_joules = pp0_energy_delta * energy_unit;
+            
+            // Handle energy counter wraparound for PP1
+            uint32_t pp1_energy_delta;
+            if (pp1_energy_after >= pp1_energy_before) {
+                pp1_energy_delta = pp1_energy_after - pp1_energy_before;
+            } else {
+                pp1_energy_delta = (UINT32_MAX - pp1_energy_before) + pp1_energy_after + 1;
+            }
+            double pp1_joules = pp1_energy_delta * energy_unit;
         
-            double pkg_joules = energy_delta * energy_unit;
-        
-            // Buffer CSV row (PKG only, no DRAM)
+            // Buffer CSV row with Package, PP0, and PP1
             output << benchmarks[b].name << ","
                    << cycles_elapsed << ","
                    << cycles_start << ","
@@ -235,13 +330,23 @@ int main() {
                    << pkg_temp_after << ","
                    << std::setprecision(6) << pkg_joules << ","
                    << std::setprecision(3) << (pkg_joules * 1000) << ","
+                   << std::setprecision(6) << pp0_joules << ","
+                   << std::setprecision(3) << (pp0_joules * 1000) << ","
+                   << std::setprecision(6) << pp1_joules << ","
+                   << std::setprecision(3) << (pp1_joules * 1000) << ","
                    << ",,"  // empty dram_joules, dram_mJ
                    << std::setprecision(6) << pkg_joules << ","
                    << std::setprecision(3) << (pkg_joules * 1000) << "\n";
         }
     }
+
+    // Print all buffered output through serial port
+    if (serial_fd >= 0) {
+        write_serial(serial_fd, output.str().c_str());
+        close(serial_fd);
+    }
     
-    // Print all buffered output at once
+    // Also print to stdout for debugging
     printf("%s", output.str().c_str());
     
     return 0;

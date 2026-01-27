@@ -101,20 +101,24 @@ void Service::start(const std::string&) {
     std::ostringstream output;
   
     // CSV header matching Linux format
-    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
+    output << "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
 
     const int repetitions = 50;
   
     // Run each benchmark
     for (size_t b = 0; b < sizeof(benchmarks) / sizeof(benchmarks[0]); b++) {
         for (int i = 0; i < repetitions; ++i) {
+            // Send 0x1b marker with benchmark name and repetition number
+            printf("\x1b%s,%d\n", benchmarks[b].name, i);
+            fflush(stdout);
+            
             // Wait for package temperature to be under 45 degrees
             double cooldown_ms = wait_for_cooldown(45.0);
       
             benchmarks[b].init();
             auto result = energy_bench::bench_function(
                 benchmarks[b].func,
-                energy_bench::PKG
+                energy_bench::PKG | energy_bench::PP0 | energy_bench::PP1
             );
 
             double temp_before = result.therm_tcc - result.therm_start;
@@ -124,7 +128,8 @@ void Service::start(const std::string&) {
             double time_ns = result.nanos_elapsed;
             double time_ms = time_ns / 1e6;
             double pkg_joules = result.pkg_joules();
-            double dram_joules = (result.measured_domains & energy_bench::DRAM) ? result.dram_joules() : 0.0;
+            double pp0_joules = (result.measured_domains & energy_bench::PP0) ? result.pp0_joules() : 0.0;
+            double pp1_joules = (result.measured_domains & energy_bench::PP1) ? result.pp1_joules() : 0.0;
             double total_joules = result.total_joules();
 
             // Buffer CSV row matching Linux format
@@ -141,10 +146,17 @@ void Service::start(const std::string&) {
                    << pkg_temp_after << ","
                    << std::setprecision(6) << pkg_joules << ","
                    << std::setprecision(3) << (pkg_joules * 1000) << ","
-                   << std::setprecision(6) << dram_joules << ","
-                   << std::setprecision(3) << (dram_joules * 1000) << ","
+                   << std::setprecision(6) << pp0_joules << ","
+                   << std::setprecision(3) << (pp0_joules * 1000) << ","
+                   << std::setprecision(6) << pp1_joules << ","
+                   << std::setprecision(3) << (pp1_joules * 1000) << ","
+                   << ",,"  // empty dram_joules, dram_mJ
                    << std::setprecision(6) << total_joules << ","
                    << std::setprecision(3) << (total_joules * 1000) << "\n";
+            
+            // Send 0x1b marker at the end
+            printf("\x1b%s,%d\n", benchmarks[b].name, i);
+            fflush(stdout);
         }
     }
   
