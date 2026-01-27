@@ -145,7 +145,7 @@ void Service::start(const std::string&) {
             double total_joules = result.total_joules();
 
             // Print CSV row immediately
-            printf("%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,%.6f,%.3f\n",
+            printf("%s,%lu,%lu,%lu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,%.6f,%.3f\n",
                    benchmarks[b].name,
                    result.cycles_elapsed,
                    result.cycles_start,
