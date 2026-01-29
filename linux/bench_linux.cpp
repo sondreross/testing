@@ -236,19 +236,17 @@ int main(int argc, char* argv[]) {
     
     // Print CSV header immediately
     const char* csv_header = "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
-    printf("%s", csv_header);
-    fflush(stdout);
     if (serial_fd >= 0) {
         write_serial(serial_fd, csv_header);
     }
 
     const int repetitions = 50;
     
-    benchmarks[0].init();
+    benchmarks[2].init();
     // Warmup: Run first benchmark until CPU reaches target temperature (45°C)
     double current_temp = read_pkg_temp(cpu);
     while (current_temp < 45.0) {
-        benchmarks[0].func();
+        benchmarks[2].func();
         current_temp = read_pkg_temp(cpu);
     }
     
@@ -350,8 +348,6 @@ int main(int argc, char* argv[]) {
                 pkg_joules,
                 pkg_joules * 1000);
             
-            printf("%s", csv_row);
-            fflush(stdout);
             if (serial_fd >= 0) {
                 write_serial(serial_fd, csv_row);
             }

@@ -104,10 +104,10 @@ void Service::start(const std::string&) {
     const int repetitions = 50;
     
     // Warmup: Run first benchmark until CPU reaches target temperature (45°C)
-    benchmarks[0].init();
+    benchmarks[2].init();
     double current_temp = 0.0;
     while (current_temp < 45.0) {
-        benchmarks[0].func();
+        benchmarks[2].func();
         
         // Read current package temperature
         uint64_t temp_target = x86::CPU::read_msr(MSR_TEMPERATURE_TARGET);
@@ -115,6 +115,7 @@ void Service::start(const std::string&) {
         uint64_t pkg_therm_status = x86::CPU::read_msr(IA32_PACKAGE_THERM_STATUS);
         uint32_t digital_readout = (pkg_therm_status >> 16) & 0x7F;
         current_temp = tj_max - digital_readout;
+        printf("Warmup: Current package temperature: %.2f °C\n", current_temp);
     }
   
     // Run each benchmark
