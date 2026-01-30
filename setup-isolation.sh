@@ -85,6 +85,76 @@ else
     echo "  (Some hardware IRQs cannot be moved)"
 fi
 
+ISOLATED_CPU=$ISOLATED_CORE
+CPUSET_ROOT="/dev/cpuset"
+
+# Detect total CPUs
+TOTAL_CPUS=$(nproc)
+LAST_CPU=$((TOTAL_CPUS - 1))
+
+if [ "$ISOLATED_CPU" -gt "$LAST_CPU" ]; then
+    echo "Error: CPU $ISOLATED_CPU doesn't exist. Valid range: 0-$LAST_CPU"
+    exit 1
+fi
+
+# Build housekeeping CPU list
+HOUSEKEEPING_CPUS="0-2"
+
+
+echo "=== CPU Isolation with cpusets ==="
+echo "Isolated CPU: $ISOLATED_CPU"
+echo "Housekeeping CPUs: $HOUSEKEEPING_CPUS"
 echo ""
-echo "Setup complete! Run your program with:"
-echo "  taskset -c $ISOLATED_CORE ./your_program"
+
+# Mount cpuset if not already mounted
+if ! mountpoint -q $CPUSET_ROOT 2>/dev/null; then
+    echo "Mounting cpuset..."
+    mkdir -p $CPUSET_ROOT
+    mount -t cpuset none $CPUSET_ROOT
+fi
+
+# Create housekeeping cpuset
+echo "Creating housekeeping cpuset..."
+mkdir -p $CPUSET_ROOT/housekeeping
+echo $HOUSEKEEPING_CPUS > $CPUSET_ROOT/housekeeping/cpus
+echo 0 > $CPUSET_ROOT/housekeeping/mems
+
+# Create isolated cpuset
+echo "Creating isolated cpuset..."
+mkdir -p $CPUSET_ROOT/isolated
+echo $ISOLATED_CPU > $CPUSET_ROOT/isolated/cpus
+echo 0 > $CPUSET_ROOT/isolated/mems
+echo 1 > $CPUSET_ROOT/isolated/cpu_exclusive
+
+# Move all user tasks to housekeeping
+echo "Moving user tasks to housekeeping cpuset..."
+for pid in $(cat $CPUSET_ROOT/tasks); do
+    # Skip kernel threads (they can't be moved anyway)
+    if [ -d /proc/$pid/task ]; then
+        comm=$(cat /proc/$pid/comm 2>/dev/null || echo "")
+        # Only move if not a kernel thread (kernel threads have brackets)
+        if [[ ! "$comm" =~ ^\[.*\]$ ]]; then
+            echo $pid > $CPUSET_ROOT/housekeeping/tasks 2>/dev/null || true
+        fi
+    fi
+done
+
+# Disable printk
+echo "Disabling printk console output..."
+echo 0 > /proc/sys/kernel/printk
+
+echo ""
+echo "=== Setup Complete ==="
+echo ""
+echo "Kernel threads are controlled by kernel boot parameters:"
+echo "  irqaffinity=$HOUSEKEEPING_CPUS - keeps IRQ threads off isolated CPU"
+echo "  rcu_nocbs=$ISOLATED_CPU - offloads RCU callbacks"
+echo ""
+echo "To run a program on isolated CPU $ISOLATED_CPU:"
+echo "  sudo sh -c 'echo \$\$ > $CPUSET_ROOT/isolated/tasks && exec chrt -f 99 ./your_program'"
+echo ""
+echo "Required kernel boot parameters:"
+echo "  nohz_full=$ISOLATED_CPU rcu_nocbs=$ISOLATED_CPU irqaffinity=$HOUSEKEEPING_CPUS nmi_watchdog=0"
+echo ""
+echo "Check interrupts:"
+echo "  watch -d -n 1 \"cat /proc/interrupts | head -20\""
