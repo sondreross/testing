@@ -97,11 +97,8 @@ double wait_for_cooldown(double target_temp) {
 }
 
 void Service::start(const std::string&) {
-    // Print CSV header immediately
-    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
-    fflush(stdout);
-
     const int repetitions = 50;
+    std::vector<std::string> results;
     
     // Warmup: Run first benchmark until CPU reaches target temperature (45°C)
     benchmarks[2].init();
@@ -123,7 +120,6 @@ void Service::start(const std::string&) {
         for (int i = 0; i < repetitions; ++i) {
             // Send 0x1b marker with benchmark name and repetition number
             printf("\x1b%s,%d\n", benchmarks[b].name, i);
-            fflush(stdout);
             
             // Wait for package temperature to be under 45 degrees
             double cooldown_ms = wait_for_cooldown(45.0);
@@ -145,34 +141,44 @@ void Service::start(const std::string&) {
             double pp1_joules = (result.measured_domains & energy_bench::PP1) ? result.pp1_joules() : 0.0;
             double total_joules = result.total_joules();
 
-            // Print CSV row immediately
-            printf("%s,%lu,%lu,%lu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,%.6f,%.3f\n",
-                   benchmarks[b].name,
-                   result.cycles_elapsed,
-                   result.cycles_start,
-                   result.cycles_end,
-                   time_ns,
-                   time_ms,
-                   cooldown_ms,
-                   temp_before,
-                   temp_after,
-                   pkg_temp_before,
-                   pkg_temp_after,
-                   pkg_joules,
-                   pkg_joules * 1000,
-                   pp0_joules,
-                   pp0_joules * 1000,
-                   pp1_joules,
-                   pp1_joules * 1000,
-                   total_joules,
-                   total_joules * 1000);
-            fflush(stdout);
+            // Format and store CSV row
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer), 
+                     "%s,%lu,%lu,%lu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,,%.6f,%.3f",
+                     benchmarks[b].name,
+                     result.cycles_elapsed,
+                     result.cycles_start,
+                     result.cycles_end,
+                     time_ns,
+                     time_ms,
+                     cooldown_ms,
+                     temp_before,
+                     temp_after,
+                     pkg_temp_before,
+                     pkg_temp_after,
+                     pkg_joules,
+                     pkg_joules * 1000,
+                     pp0_joules,
+                     pp0_joules * 1000,
+                     pp1_joules,
+                     pp1_joules * 1000,
+                     total_joules,
+                     total_joules * 1000);
+            results.push_back(std::string(buffer));
             
             // Send 0x1b marker at the end
             printf("\x1b%s,%d\n", benchmarks[b].name, i);
-            fflush(stdout);
         }
     }
+    
+    // Print CSV header
+    printf("benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n");
+    
+    // Print all results
+    for (const auto& row : results) {
+        printf("%s\n", row.c_str());
+    }
+    fflush(stdout);
   
     os::shutdown();
 }
