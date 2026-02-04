@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iomanip>
 #include <termios.h>
+#include <vector>
 #include "../support.h"
 
 // Include all benchmark headers
@@ -234,13 +235,8 @@ int main(int argc, char* argv[]) {
     uint64_t power_unit_raw = read_msr(cpu, MSR_RAPL_POWER_UNIT);
     double energy_unit = 1.0 / (1 << ((power_unit_raw >> 8) & 0x1F));
     
-    // Print CSV header immediately
-    const char* csv_header = "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
-    if (serial_fd >= 0) {
-        write_serial(serial_fd, csv_header);
-    }
-
     const int repetitions = 50;
+    std::vector<std::string> results;
     
     benchmarks[2].init();
     // Warmup: Run first benchmark until CPU reaches target temperature (45°C)
@@ -324,10 +320,10 @@ int main(int argc, char* argv[]) {
             }
             double pp1_joules = pp1_energy_delta * energy_unit;
         
-            // Print CSV row immediately
+            // Store CSV row
             char csv_row[512];
             snprintf(csv_row, sizeof(csv_row),
-                "%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,%.6f,%.3f\n",
+                "%s,%llu,%llu,%llu,%.3f,%.6f,%.3f,%.2f,%.2f,%.2f,%.2f,%.6f,%.3f,%.6f,%.3f,%.6f,%.3f,,,%.6f,%.3f",
                 benchmarks[b].name,
                 cycles_elapsed,
                 cycles_start,
@@ -347,10 +343,22 @@ int main(int argc, char* argv[]) {
                 pp1_joules * 1000,
                 pkg_joules,
                 pkg_joules * 1000);
-            
-            if (serial_fd >= 0) {
-                write_serial(serial_fd, csv_row);
-            }
+            results.push_back(std::string(csv_row));
+        }
+    }
+    
+    // Print CSV header
+    const char* csv_header = "benchmark,cpu_cycles,cycles_start,cycles_end,time_ns,time_ms,cooldown_ms,temp_before,temp_after,pkg_temp_before,pkg_temp_after,pkg_joules,pkg_mJ,pp0_joules,pp0_mJ,pp1_joules,pp1_mJ,dram_joules,dram_mJ,total_joules,total_mJ\n";
+    if (serial_fd >= 0) {
+        write_serial(serial_fd, csv_header);
+    }
+    
+    // Print all results
+    for (const auto& row : results) {
+        char output[1024];
+        snprintf(output, sizeof(output), "%s\n", row.c_str());
+        if (serial_fd >= 0) {
+            write_serial(serial_fd, output);
         }
     }
 
