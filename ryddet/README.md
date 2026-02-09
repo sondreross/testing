@@ -25,10 +25,14 @@ optimized_linux_iso_eist_c-state_off
 
 
 
+Naive-linux
+- Som base, bare uten tempratur venting og oppvarming i starten. (her også uten tastatur og video)
 
 (additional experiments)
 optimized_linux_wo_iso_eist_c-state_off
 - Samme som ^ bare 
 - EIST og C-states på
 - (print underveis)
+
+
 
