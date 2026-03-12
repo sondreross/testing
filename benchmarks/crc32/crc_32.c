@@ -26,7 +26,7 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 5)
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 60000 
+#define BENCHMARK_REPEAT 50000 
 #endif
 
 #include <stdlib.h>

@@ -34,7 +34,7 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 0)
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 140000
+#define BENCHMARK_REPEAT 160000
 #endif
 
 // From nettle/nettle-types.h
