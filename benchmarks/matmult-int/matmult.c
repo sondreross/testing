@@ -48,7 +48,7 @@
    benchmarks. */
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 5000000
+#define BENCHMARK_REPEAT 33000
 #endif
 
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 6)

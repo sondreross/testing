@@ -33,7 +33,7 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 9)
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 400000
+#define BENCHMARK_REPEAT 3000
 #endif
 
 #define NUM_NODES                          10
