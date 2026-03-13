@@ -35,7 +35,7 @@
 
 #ifndef BENCHMARK_REPEAT
   #ifdef SHORT_BENCH
-    #define BENCHMARK_REPEAT 160000
+    #define BENCHMARK_REPEAT 180000
   #else
     #define BENCHMARK_REPEAT 20000000
   #endif

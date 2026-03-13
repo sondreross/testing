@@ -72,7 +72,7 @@
 
 #ifndef BENCHMARK_REPEAT
    #ifdef SHORT_BENCH
-      #define BENCHMARK_REPEAT 1500
+      #define BENCHMARK_REPEAT 1900
    #else
       #define BENCHMARK_REPEAT 200000
    #endif
