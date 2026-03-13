@@ -66,7 +66,11 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 0)
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 100000000
+   #ifdef SHORT_BENCHMARK
+      #define BENCHMARK_REPEAT 830000
+   #else
+      #define BENCHMARK_REPEAT 100000000
+   #endif
 #endif
 
 #ifdef IO

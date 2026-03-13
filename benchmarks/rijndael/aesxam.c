@@ -71,7 +71,11 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 9)
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 200000
+   #ifdef SHORT_BENCH
+      #define BENCHMARK_REPEAT 1500
+   #else
+      #define BENCHMARK_REPEAT 200000
+   #endif
 #endif
 
 #ifndef fpos_t
