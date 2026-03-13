@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(Benchmarks C)
 
+option(SHORT_BENCH "Use short benchmark repeat count" OFF)
+
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_C_FLAGS "-Wall -O2")
 
@@ -75,6 +77,13 @@ set_target_properties(rijndael_obj PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${BUILD_DIR}
 )
+
+if(SHORT_BENCH)
+    foreach(target crc32_obj cubic_obj dijkstra_obj fdct_obj fir_obj
+                   matmult_float_obj matmult_int_obj nettle_sha256_obj rijndael_obj)
+        target_compile_definitions(${target} PRIVATE SHORT_BENCH)
+    endforeach()
+endif()
 
 # Custom target to copy object files after they are built
 add_custom_target(copy_objects ALL

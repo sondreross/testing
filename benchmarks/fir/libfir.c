@@ -29,7 +29,7 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 0)
 
 #ifndef BENCHMARK_REPEAT
-  #ifdef SHORT_BENCHMARK
+  #ifdef SHORT_BENCH
     #define BENCHMARK_REPEAT 4500
   #else
     #define BENCHMARK_REPEAT 500000
