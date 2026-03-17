@@ -182,7 +182,7 @@ double wait_for_cooldown(int cpu, double target_temp) {
         current_temp = read_pkg_temp(cpu);
         if (current_temp > target_temp) {
             // Sleep for 10 milliseconds to avoid heating CPU
-            struct timespec req = {0, 10 * 1000 * 1000}; // 10 ms
+            struct timespec req = {0, 2 * 1000 * 1000}; // 10 ms
             nanosleep(&req, NULL);
         }
     } while (current_temp > target_temp);

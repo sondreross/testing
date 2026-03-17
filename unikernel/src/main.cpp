@@ -87,7 +87,7 @@ double wait_for_cooldown(double target_temp) {
         
         if (current_temp > target_temp) {
             // Sleep for 10 milliseconds to allow CPU to cool
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
     } while (current_temp > target_temp);
     
