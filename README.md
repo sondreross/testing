@@ -1,6 +1,7 @@
-## Testing
-This is a repo for both experiment code, results, and data analysis. It is the repository i worked in underways, so many of the things are intermidate results, and not the final results and or setup. The actuall results from this theisis is in [./experiment_results/nixround/](./experiment_results/nixround/).
+# Testing
+This is a repo for both experiment code, results, and data analysis. The actuall results from this theisis is in [./experiment_results/nixround/](./experiment_results/nixround/).
 
+## Overview
 In the [benchmarks](./benchmarks/) directory the benchmarks are as they where used, with the .o files themselves in the benchmarks-build dir.
 
 In [data_analysis](./data_analysis/), the notebooks used for data analysis is placed.
