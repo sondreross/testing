@@ -1,5 +1,9 @@
 # Linux setup
 
-To make the final binary for linux run ```nix-build static-linux-musl-includeos-rev.nix```.
+To build the final Linux binary, run:
 
-This is supposed to run on linux, sending results and START/STOP singals over serial port.
+```bash
+nix-build static-linux-musl-includeos-rev.nix
+```
+
+This is intended to run on Linux, sending results and START/STOP signals over the serial port.
