@@ -1,17 +1,13 @@
-## First round
-Tried running 40 runs with a bubblesort between 10 and 13 seconds of work on the DUT. Same array, results in energy_comparisons. Tried to get the same compile options, dont know i did.
+## Testing
+This is a repo for both experiment code, results, and data analysis. It is the repository i worked in underways, so many of the things are intermidate results, and not the final results and or setup. The actuall results from this theisis is in [./experiment_results/nixround/](./experiment_results/nixround/).
 
-## Second round
-I have now changed out the vector from stdlib to a normal malloced array. And the bubblesort itself is a .o file that both plattforms use.
+In the [benchmarks](./benchmarks/) directory the benchmarks are as they where used, with the .o files themselves in the benchmarks-build dir.
 
-### Differnt versions
-Most things are on the default: Intel SpeedStep ON, C states on, TurboBoost ON. On round 1 and 2 the base linux uses on_demand, on schedutil, i change to schedutil.
+In [data_analysis](./data_analysis/), the notebooks used for data analysis is placed.
 
-## Third round
-Now i have made 4 version:
-- unikernel as is
-- Unikernel tweaked
-- linux as is, this is intel-pstate cpufreq driver with powersave (governor)
-- linux tweaked, (everything)
-(here i have used the beeps bubblesort on 80 000) with worst case. og egen .o fil, så samme for begge systemene.
+In [experiment_results](./experiment_results/) the actall results for the differnet experiments done are placed.
+
+[power_monitor.cpp](./power_monitor.cpp) is the program run on the external machine that communincates with the power monitor and DUT.
+
+[setup_isolation.sh](./setup_isolation.sh) is the script mentioned in the thesis, used for part of the Linux Iso configuration.
 
