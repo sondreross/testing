@@ -6,8 +6,6 @@ The benchmarks are in [benchmarks](./benchmarks/) directory.
 
 The measurement code used in the experiments is in [unikernel](./unikernel/) and [linux](./linux/).
 
-The notebooks used for data analysis are in [data_analysis](./data_analysis/).
-
 The experiment results are in [experiment_results](./experiment_results/).
 
 [power_monitor.cpp](./power_monitor.cpp) is the program run on the external machine that communicates with the power monitor and DUT.
