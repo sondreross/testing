@@ -27,11 +27,12 @@
 #define SCALE_FACTOR    (REPEAT_FACTOR >> 13)
 
 #ifndef BENCHMARK_REPEAT
+#ifdef SHORT_BENCH
+#define BENCHMARK_REPEAT 50000
+#else
 #define BENCHMARK_REPEAT 6000000
 #endif
-
-
-/* This benchmark does not support verification */
+#endif
 
 int
 verify_benchmark_cubic (int res __attribute ((unused)) )

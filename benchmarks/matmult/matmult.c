@@ -51,7 +51,11 @@
    benchmarks. */
 
 #ifndef BENCHMARK_REPEAT
-#define BENCHMARK_REPEAT 5000000
+   #ifdef SHORT_BENCH
+      #define BENCHMARK_REPEAT
+   #else
+      #define BENCHMARK_REPEAT 5000000
+   #endif
 #endif
 
 #ifdef MATMULT_FLOAT
