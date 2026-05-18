@@ -7,3 +7,5 @@ nix-build static-linux-musl-includeos-rev.nix
 ```
 
 This is intended to run on Linux, sending results and START/STOP signals over the serial port.
+
+Requires build of benchmarks and the .o files in ```benchmarks-build```.
